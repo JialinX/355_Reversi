@@ -2,8 +2,7 @@ from board import ReversiBoard
 
 def main():
     board = ReversiBoard(8)
-    while True:
-        option = input()
+    board.showBoard()
 
 if __name__ == '__main__':
     main()
