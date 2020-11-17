@@ -35,7 +35,8 @@ class ReversiBoard():
         board2d = [[0 for i in range(self.size)] for j in range(self.size)]
         for row in range(self.size):
             for col in range(self.size):
-                board2d[row][col] = self.board[(self.size) * row + col]
+                point = self.index2point(row,col)
+                board2d[row][col] = self.board[point]
         return board2d
 
     def printMenu(self):
