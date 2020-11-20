@@ -159,6 +159,7 @@ class ReversiBoard():
         else:
             return False
 
+
     def getWinner(self):
         if self.isEnd():
             blackMark = self.getMark(BLACK)
@@ -175,6 +176,4 @@ class ReversiBoard():
     def change_current_player(self):
 
         self.currentPlayer = BLACK if self.currentPlayer == WHITE else WHITE
-
-
     
