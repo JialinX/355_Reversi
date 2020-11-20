@@ -52,8 +52,8 @@ class ReversiBoard():
 
     def genMove(self, color):
         pass
-            #self.
-    
+
+
     def makeMove(self, cmd):
         cmd = cmd.split()
         if len(cmd)==2:
@@ -72,7 +72,6 @@ class ReversiBoard():
         return False
     
     
-    #convert position str like "a1" to point like 0 as the index in self.board
     def position2point(self, position):
         letter, col = position
         col -= 1
@@ -124,7 +123,6 @@ class ReversiBoard():
 
 
     def check_directions(self,i,j,i_step,j_step,color):
-    
         point = self.index2point(i,j)
         if self.board[point] == color:
             return True
