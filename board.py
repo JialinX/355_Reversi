@@ -52,8 +52,15 @@ class ReversiBoard():
 
     def genMove(self, color):
         moves = self.getAllLegalMoves(color)
+        if color == "w":
+            optcolor = BLACK
+        else:
+            optcolor = WHITE
+
         if self.isEnd():
             print("The winner is:",self.getWinner())
+        elif len(moves) == 0 and len(self.getAllLegalMoves(optcolor)) != 0:
+            self.currentPlayer = optcolor
         else:
             self.play(self.currentPlayer, random.choice(moves))
 
@@ -84,15 +91,11 @@ class ReversiBoard():
 
         for i in legalMove:
             position = self.point2position(i)
-            print(position)
-        print("-----------------------------")
         return legalMove
 
 
     def erase(self,  point):
-         self.board[point] = EMPTY
-         for key in self.changedPoints:
-            self.board[key] = self.changedPoints[key]
+        pass
 
     def play(self, color, point):
         if self.board[point] == EMPTY:
