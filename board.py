@@ -43,8 +43,8 @@ class ReversiBoard():
 
     def printMenu(self):
         print('  h            help menu')
-        print('  x a2         play x a 2')
-        print('  o g3         play o g 3')
+        print('  b a2         play b a 2')
+        print('  w g3         play w g 3')
         print('  . e3         erase e 3')
         print('  g x/o        genmove for x/o')
         print('  l x/o        show legal moves for x/o')
@@ -53,7 +53,25 @@ class ReversiBoard():
     def genMove(self, color):
         pass
             #self.
-
+    
+    def makeMove(self, cmd):
+        cmd = cmd.split()
+        if len(cmd)==2:
+            ch = cmd[0][0]
+            if ch in "bw":
+                q, n = cmd[1][0], cmd[1][1:]
+                if q.isalpha() and n.isdigit():
+                    x, y = ord(q)-ord('a'),int(n) - 1
+                    if x>=0 and x < self.size and y>=0 and y < self.size:
+                        point = self.index2point(x,y)
+                        if point in self.getAllLegalMoves(ch):
+                            self.play(ch,point)
+                            return True
+                
+        print('\n Not valid')
+        return False
+    
+    
     #convert position str like "a1" to point like 0 as the index in self.board
     def position2point(self, position):
         letter, col = position
@@ -99,7 +117,7 @@ class ReversiBoard():
         #check if the adjacent cells has the same color
         #if it's the same color or empty, stop
         point = self.index2point(i,j)
-        if self.board[point] == color or self.board[point] == EMPTY:
+        if self.board[point] == color or self.board[point] == EMPTY or point < 0:
             return False
 
         return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
@@ -111,7 +129,7 @@ class ReversiBoard():
         if self.board[point] == color:
             return True
 
-        elif self.board[point] == EMPTY:
+        elif self.board[point] == EMPTY or point < 0:
             return False
 
         else:
@@ -124,11 +142,12 @@ class ReversiBoard():
         for dire in self.directions:
             i_step,j_step = dire
             try:
-                valid = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
-                if valid and code == "check":
-                    return True
-                elif valid and code == "change":
-                    self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
+                if i+i_step >= 0 and i+i_step < self.size and j+j_step >=0 and j+j_step < self.size:
+                    valid = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
+                    if valid and code == "check":
+                        return True
+                    elif valid and code == "change":
+                        self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
             except:
                 pass
 
