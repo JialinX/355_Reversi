@@ -1,12 +1,11 @@
 from board import ReversiBoard
-from greedy import greedy
 import random
 import time
 class Cell:
   chars ='bw' 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
-def showLegalMove(player1):
+def showLegalMove(board, player1):
     move = board.getAllLegalMoves(player1)
     if len(move) == 0:
         print("You have no legal move!")
@@ -16,7 +15,6 @@ def showLegalMove(player1):
         coord = []
         for i in move:
             position = board.point2position(i)
-            print(position)
             letter = alphabet[position[0]]
             coord.append(letter+str(position[1]+1))      
         print(coord) 
@@ -30,11 +28,11 @@ def main():
         if choose.lower() == "w" or choose.lower() == "white":
             player1 = "w"
             player2 = "b"
-            return
+            break
         elif choose.lower() == "b" or choose.lower() == "black":
             player1 = "b"
             player2 = "w"
-            return
+            break
 
     board.printMenu() 
     while True:
@@ -52,7 +50,7 @@ def main():
         else:
             board.showBoard()
             #show legal moves
-            showLegalMove(player1)
+            showLegalMove(board, player1)
 
             #get user input
             cmd = input('')
