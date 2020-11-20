@@ -61,8 +61,10 @@ class ReversiBoard():
             print("The winner is:",self.getWinner())
         elif len(moves) == 0 and len(self.getAllLegalMoves(optcolor)) != 0:
             self.currentPlayer = optcolor
+        #random 
         else:
             self.play(self.currentPlayer, random.choice(moves))
+            #self.
 
     #convert position str like "a1" to point like 0 as the index in self.board
     def position2point(self, position):
@@ -88,14 +90,14 @@ class ReversiBoard():
                  position = self.point2position(point)
                  if self.reverseColor(position, color, "check"):
                     legalMove.append(point)
-
-        for i in legalMove:
-            position = self.point2position(i)
         return legalMove
 
 
-    def erase(self,  point):
-        pass
+    def erase(self, point):
+        self.board[point] = EMPTY
+        for key in self.changedPoints:
+            self.board[key] = self.changedPoints[key]
+        self.changedPoints = {}
 
     def play(self, color, point):
         if self.board[point] == EMPTY:
@@ -144,11 +146,15 @@ class ReversiBoard():
 
 
     def start_reverse(self,i,j,i_step,j_step,color):
-        print(i_step,j_step)
+        if color == WHITE:
+            optcolor = BLACK
+        else:
+            optcolor = WHITE
         point = self.index2point(i,j)
         if self.board[point] == color:
             return
         self.board[point] = color
+        self.changedPoints[point] = optcolor
         self.start_reverse(i+i_step, j+j_step, i_step, j_step, color)
 
 
