@@ -1,35 +1,45 @@
-import numpy as np
+BLACK = 'b' # player black
+WHITE = 'w' # player white
+EMPTY = '.'
 
-BLACK = 1 # player x 
-WHITE = 2 # player o
-EMPTY = 0
 
 class ReversiBoard():
 
     def __init__(self, size):
         self.size = size
-        self.startingBoard()
-        
-    def startingBoard(self):
-        assert self.size%2==0
+        self.board = [EMPTY]*(self.size*self.size)
+        self.initBoard()
+        self.currentPlayer = BLACK
+        self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+        self.changedPoints = {}
+
+    def initBoard(self):
         mid = int(self.size/2)
-        board2d = np.zeros((self.size, self.size))
-        board2d[mid  ][mid  ] = 2
-        board2d[mid-1][mid-1] = 2
-        board2d[mid  ][mid-1] = 1
-        board2d[mid-1][mid  ] = 1
-        self.board1d = self.boardTo1d(board2d)
+        self.board[self.index2point(mid,mid)] = WHITE
+        self.board[self.index2point(mid-1,mid-1)] = WHITE
+        self.board[self.index2point(mid,mid-1)] = BLACK
+        self.board[self.index2point(mid-1,mid)] = BLACK
 
     def showBoard(self):
-        pass
-
+        colString = "   " + " ".join([str(i).center(3) for i  in range(1,self.size+1)])
+        alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        board2d = self.boardTo2d()
+        sep  = f"  +{'-' * (3*self.size + self.size-1)}+"
+        print(colString)
+        print(sep)
+        for row in range(self.size):
+            strRow = [str(i).center(3) for i in board2d[row]]
+            rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
+            print(rowString)
+            print(sep)
+        
     def boardTo2d(self):
-        board2d = np.reshape(b, (-1, self.size))
+        board2d = [[0 for i in range(self.size)] for j in range(self.size)]
+        for row in range(self.size):
+            for col in range(self.size):
+                point = self.index2point(row,col)
+                board2d[row][col] = self.board[point]
         return board2d
-
-    def boardTo1d(self, board2d):
-        board1d = board2d.flatten()
-        return board1d
 
     def printMenu(self):
         print('  h            help menu')
@@ -41,44 +51,130 @@ class ReversiBoard():
         print('  u            undo')
 
     def genMove(self, color):
-        moves = getAllLegalMoves(color)
         pass
+            #self.
 
-    def convertLetterPosition(self, position):
-        letter = position[0]
-        number = position[1]
+    #convert position str like "a1" to point like 0 as the index in self.board
+    def position2point(self, position):
+        letter, col = position
+        col -= 1
         alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        return alphabet.index(letter)*self.size + number
+        row = alphabet.index(letter)
+
+        return self.index2point(row,col)
+
+    def index2point(self, row, col):
+
+        return (self.size) * row + col
+
+    def point2position(self,point):
+
+        return point// self.size,point % self.size
     
     def getAllLegalMoves(self, color):
-        optColor = 3 - color
-        markBefore = self.getMark(optColor)
-        legalMoves = []
-        for position in self.board1d:
-            if position == EMPTY: # to be changed to all adjcent cells instead of empty cells
-                
-                self.play(color, position)
-                if self.getMark(optColor) != markBefore:
-                    moves.append(position)
-                self.undo()
+        legalMove = []
+        for point in range(len(self.board)):
+            if self.board[point] == EMPTY: # to be changed to all adjcent cells instead of empty cells
+                 position = self.point2position(point)
+                 if self.reverseColor(position, color, "check"):
+                    legalMove.append(point)
+        return legalMove
 
-        return legalMoves
 
-    def erase(self, color, position):
-        self.board1d[self.convertLetterPosition(position)] = 0
+    def erase(self, point):
+        self.board[point] = EMPTY
+        for key in self.changedPoints:
+            self.board[key] = self.changedPoints[key]
+        self.changedPoints = {}
 
-    def play(self, color, position):
-        pass
+    def play(self, color, point):
+        if self.board[point] == EMPTY:
+            self.board[point] = color
+        position = self.point2position(point)
+        self.reverseColor(position, color,"change")
+        #self.change_current_player()
+
+
+    def valid_move(self,i,j,i_step,j_step,color):
+        #check if the adjacent cells has the same color
+        #if it's the same color or empty, stop
+        point = self.index2point(i,j)
+        if self.board[point] == color or self.board[point] == EMPTY:
+            return False
+
+        return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
+
+
+    def check_directions(self,i,j,i_step,j_step,color):
     
+        point = self.index2point(i,j)
+        if self.board[point] == color:
+            return True
+
+        elif self.board[point] == EMPTY:
+            return False
+
+        else:
+            return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
+
+
+    def reverseColor(self,position,color,code):
+        #check moves
+        i,j = position
+        for dire in self.directions:
+            i_step,j_step = dire
+            try:
+                valid = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
+                if valid and code == "check":
+                    return True
+                elif valid and code == "change":
+                    self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
+            except:
+                pass
+
+
+    def start_reverse(self,i,j,i_step,j_step,color):
+        if color == WHITE:
+            optcolor = BLACK
+        else:
+            optcolor = WHITE
+        point = self.index2point(i,j)
+        if self.board[point] == color:
+            return
+        self.board[point] = color
+        self.changedPoints[point] = optcolor
+        self.start_reverse(i+i_step, j+j_step, i_step, j_step, color)
+
+
     def getMark(self, color):
         mark = 0
-        for i in self.board1d:
-            if i == color:
+        for point in self.board:
+            if point == color:
                 mark += 1
         return mark
 
+    def isEnd(self):
+        if len(self.getAllLegalMoves(BLACK)) == 0 and len(self.getAllLegalMoves(WHITE)) == 0:
+            return True
+        else:
+            return False
 
+    def getWinner(self):
+        if self.isEnd():
+            blackMark = self.getMark(BLACK)
+            whiteMark = self.getMark(WHITE)
+            if blackMark > whiteMark:
+                return BLACK
+            elif blackMark == whiteMark:
+                return 'tie'
+            else:
+                return WHITE
 
+        return None
+
+    def change_current_player(self):
+
+        self.currentPlayer = BLACK if self.currentPlayer == WHITE else WHITE
 
 
     
