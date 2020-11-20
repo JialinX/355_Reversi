@@ -56,10 +56,7 @@ class ReversiBoard():
             optcolor = BLACK
         else:
             optcolor = WHITE
-
-        if self.isEnd():
-            print("The winner is:",self.getWinner())
-        elif len(moves) == 0 and len(self.getAllLegalMoves(optcolor)) != 0:
+        if len(moves) == 0 and len(self.getAllLegalMoves(optcolor)) != 0:
             self.currentPlayer = optcolor
         #random 
         else:
@@ -104,7 +101,7 @@ class ReversiBoard():
             self.board[point] = color
         position = self.point2position(point)
         self.reverseColor(position, color,"change")
-        self.change_current_player()
+        #self.change_current_player()
 
 
     def valid_move(self,i,j,i_step,j_step,color):
