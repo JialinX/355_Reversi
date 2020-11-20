@@ -1,7 +1,7 @@
 BLACK = 'b' # player black
 WHITE = 'w' # player white
 EMPTY = '.'
-import random
+
 
 class ReversiBoard():
 
@@ -51,16 +51,7 @@ class ReversiBoard():
         print('  u            undo')
 
     def genMove(self, color):
-        moves = self.getAllLegalMoves(color)
-        if color == "w":
-            optcolor = BLACK
-        else:
-            optcolor = WHITE
-        if len(moves) == 0 and len(self.getAllLegalMoves(optcolor)) != 0:
-            self.currentPlayer = optcolor
-        #random 
-        else:
-            self.play(self.currentPlayer, random.choice(moves))
+        pass
             #self.
 
     #convert position str like "a1" to point like 0 as the index in self.board
