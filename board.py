@@ -1,3 +1,5 @@
+import numpy as np
+
 BLACK = 'x' # player black
 WHITE = 'o' # player white
 EMPTY = '.'
@@ -33,12 +35,6 @@ class ReversiBoard():
             rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
             print(rowString)
             print(sep)
-
-    def board2sting(self):
-
-        boardString = ''.join(self.board)
-
-        return boardString
         
     def boardTo2d(self):
         board2d = [[0 for i in range(self.size)] for j in range(self.size)]
@@ -60,13 +56,38 @@ class ReversiBoard():
     def genMove(self, color):
         pass
 
-    def addHistory(self,state, score):
+    def board2string(self, state):
 
+        boardString = ""
+        for ix,iy in np.ndindex(state.shape):
+            boardString += state[ix,iy]
+
+        return boardString
+
+    def getIso(self):
+
+        npboard = np.array(self.board)
+        2dboard = np.reshape(npboard, (-1, 2))
+        leftRightFlipBoard = np.fliplr(2dboard)
+        upDownFlipBoard = np.flipud(2dboard)
+        isoString = [self.board2string(2dboard),self.board2string(np.rot90(2dboard, 1)),
+                    self.board2string(np.rot90(2dboard, 2)),self.board2string(np.rot90(2dboard, 3)),
+                    self.board2string(upDownFlipBoard),self.board2string(leftRightFlipBoard),
+                    self.board2string(np.rot90(leftRightFlipBoard,1)),self.board2string(np.rot90(upDownFlipBoard,1))]
+
+        return isoString
+
+    def addHistory(self, score):
+
+        state = ''.join(self.board)
         self.history[state] = score
 
-    def getHistory(self, state):
-        if state in self.history:
-            return self.history[state]
+    def getHistory(self):
+
+        boardIso = self.getIso()
+        for state in boardIso:
+            if state in self.history:
+                return self.history[state]
         return False
 
     #convert position str like "a1" to point like 0 as the index in self.board

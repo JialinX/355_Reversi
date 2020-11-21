@@ -31,11 +31,10 @@ def alphabeta(board, color, depth):
 
     for move in moves:
         board.play(color, move)
-        boardState = board.board2string()
-        if board.getHistory(boardState) != False:
-            value = board.getHistory(boardState)
-        value = min_alphabeta(board, 3-color, color, depth+1, -9999, 9999)
-        board.addHistory(boardState, value)
+        value = board.getHistory()
+        if value == False:
+            value = min_alphabeta(board, 3-color, color, depth+1, -9999, 9999)
+            board.addHistory(value)
         board.undo()
 
         if (value>best):
