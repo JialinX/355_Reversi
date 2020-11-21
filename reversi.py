@@ -19,7 +19,7 @@ def getHeuristicWeight(board, color):
     return total
 
 def genMove(board, color):
-    value, move = alphabeta
+    move = alphabeta(color, depth)
     return move
 
 def alphabeta(board, color, depth):
@@ -30,15 +30,19 @@ def alphabeta(board, color, depth):
     moves = board.getAllLegalMoves(color)
 
     for move in moves:
-        board.play(color)
+        board.play(color, move)
+        boardState = board.board2string()
+        if board.getHistory(boardState) != False:
+            value = board.getHistory(boardState)
         value = min_alphabeta(board, 3-color, color, depth+1, -9999, 9999)
+        board.addHistory(boardState, value)
         board.undo()
 
         if (value>best):
             best = value
             bestMove = move
             
-    return value, move
+    return move
 
 def min_alphabeta(board, color, originalColor, depth, alpha, beta)
     localMin = 9999

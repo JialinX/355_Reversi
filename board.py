@@ -1,5 +1,5 @@
-BLACK = 'b' # player black
-WHITE = 'w' # player white
+BLACK = 'x' # player black
+WHITE = 'o' # player white
 EMPTY = '.'
 
 
@@ -12,6 +12,7 @@ class ReversiBoard():
         self.currentPlayer = BLACK
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
         self.changedPoints = {}
+        self.history = {}
 
     def initBoard(self):
         mid = int(self.size/2)
@@ -32,6 +33,12 @@ class ReversiBoard():
             rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
             print(rowString)
             print(sep)
+
+    def board2sting(self):
+
+        boardString = ''.join(self.board)
+
+        return boardString
         
     def boardTo2d(self):
         board2d = [[0 for i in range(self.size)] for j in range(self.size)]
@@ -53,6 +60,15 @@ class ReversiBoard():
     def genMove(self, color):
         pass
             #self.
+
+    def addHistory(self,state, score):
+
+        self.history[state] = score
+
+    def getHistory(self, state):
+        if state in self.history:
+            return self.history[state]
+        return False
 
     #convert position str like "a1" to point like 0 as the index in self.board
     def position2point(self, position):
