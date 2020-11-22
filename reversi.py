@@ -43,10 +43,10 @@ def alphabeta(board, color, depth):
             
     return move
 
-def min_alphabeta(board, color, originalColor, depth, alpha, beta)
+def min_alphabeta(board, color, originalColor, depth, alpha, beta):
     localMin = 9999
 
-    if depth == 5 or board.isEnd()
+    if depth == 5 or board.isEnd():
         return getHeuristicWeight(originalColor)
 
     moves = board.getAllLegalMoves(color)
@@ -66,10 +66,10 @@ def min_alphabeta(board, color, originalColor, depth, alpha, beta)
 
     return localMin
 
-def max_alphabeta(board, color, originalColor, depth, alpha, beta)
+def max_alphabeta(board, color, originalColor, depth, alpha, beta):
     localMax = -9999
 
-    if depth == 5 or board.isEnd()
+    if depth == 5 or board.isEnd():
         return getHeuristicWeight(originalColor)
 
     moves = board.getAllLegalMoves(color)
