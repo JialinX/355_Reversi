@@ -89,7 +89,8 @@ def dealCommand(userInput, board, alphabeta):
         color = userInput.split()[1]
         showLegalMove(board, color)    
     elif command =='u':
-        pass
+        print('\n ... Should undo :)\n')
+        board.undo()
     elif command =='q':
         print('\n ... Bye :)\n')    
         return False

@@ -16,7 +16,15 @@ class ReversiBoard():
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
         self.changedPoints = {}
         self.history = {}
-        
+        self.boardHistory.append([
+                     '.', '.', '.', '.', '.', '.', '.', '.',
+                     '.', '.', '.', '.', '.', '.', '.', '.',
+                     '.', '.', '.', '.', '.', '.', '.', '.',
+                     '.', '.', '.', 'o', 'x', '.', '.', '.',
+                     '.', '.', '.', 'x', 'o', '.', '.', '.',
+                     '.', '.', '.', '.', '.', '.', '.', '.',
+                     '.', '.', '.', '.', '.', '.', '.', '.',
+                     '.', '.', '.', '.', '.', '.', '.', '.'])
         
 
     def initBoard(self):
@@ -153,12 +161,13 @@ class ReversiBoard():
         #self.change_current_player()
         
         self.boardHistory.append(self.board)
-        print(len(self.boardHistory))
+        print(self.boardHistory)
 
         
     def undo(self):
-        print(len(self.boardHistory))
+        print('here',self.boardHistory)
         self.boardHistory.pop()
+        print('here',self.boardHistory)
         self.board = self.boardHistory[-1]
         print(len(self.boardHistory))
         
