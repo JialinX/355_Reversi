@@ -63,19 +63,19 @@ class ReversiBoard():
             boardString += state[ix,iy]
 
         return boardString
-    '''
+
     def getIso(self):
 
         npboard = np.array(self.board)
-        2dboard = np.reshape(npboard, (-1, 2))
-        leftRightFlipBoard = np.fliplr(2dboard)
-        upDownFlipBoard = np.flipud(2dboard)
-        isoString = [self.board2string(2dboard),self.board2string(np.rot90(2dboard, 1)),
-                    self.board2string(np.rot90(2dboard, 2)),self.board2string(np.rot90(2dboard, 3)),
+        board2d = np.reshape(npboard, (-1, 2))
+        leftRightFlipBoard = np.fliplr(board2d)
+        upDownFlipBoard = np.flipud(board2d)
+        isoString = [self.board2string(board2d),self.board2string(np.rot90(board2d, 1)),
+                    self.board2string(np.rot90(board2d, 2)),self.board2string(np.rot90(board2d, 3)),
                     self.board2string(upDownFlipBoard),self.board2string(leftRightFlipBoard),
                     self.board2string(np.rot90(leftRightFlipBoard,1)),self.board2string(np.rot90(upDownFlipBoard,1))]
 
-        return isoString'''
+        return isoString
 
     def addHistory(self, score):
 
@@ -132,7 +132,6 @@ class ReversiBoard():
                 position = self.point2position(point)
                 if self.reverseColor(position, color, "check"):
                     legalMove.append(point)
-        print(legalMove)
         return legalMove
 
 
