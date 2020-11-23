@@ -61,29 +61,29 @@ def dealCommand(userInput, board, alphabeta):
     command = userInput.split()[0]
     if command =='h':
         board.printMenu()
-    elif command =='x': #user play first
-        position  = board.position2point(userInput.split()[1])
-        #value, move = alphabeta.genMove(color)
-        if position in board.getAllLegalMoves(BLACK):
-            board.play(BLACK, position)
-        else:
-            print("invalid position for", BLACK)
+    # elif command =='x': #user play first
+    #     position  = board.position2point(userInput.split()[1])
+    #     #value, move = alphabeta.genMove(color)
+    #     if position in board.getAllLegalMoves(BLACK):
+    #         board.play(BLACK, position)
+    #     else:
+    #         print("invalid position for", BLACK)
 
-    elif command =='o':#computer play first
-        #print('here')
-        position  = board.position2point(userInput.split()[1])
-        #value, move = alphabeta.genMove(color)
-        if position in board.getAllLegalMoves(WHITE):
-            board.play(WHITE, move)
-        else:
-            print("invalid position for", WHITE)
+    # elif command =='o':#computer play first
+    #     #print('here')
+    #     position  = board.position2point(userInput.split()[1])
+    #     #value, move = alphabeta.genMove(color)
+    #     if position in board.getAllLegalMoves(WHITE):
+    #         board.play(WHITE, move)
+    #     else:
+    #         print("invalid position for", WHITE)
             
     elif command =='.':
         pass
     elif command =='g':
         color = userInput.split()[1]
         value, move = alphabeta.genMove(color)
-        print(value, move)
+        print('recommand',value, move)
     elif command =='l':
         color = userInput.split()[1]
         showLegalMove(board, color)    

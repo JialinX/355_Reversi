@@ -1,5 +1,5 @@
 import numpy as np
-
+from copy import deepcopy
 BLACK = 'x' # player black
 WHITE = 'o' # player white
 EMPTY = '.'
@@ -11,11 +11,19 @@ class ReversiBoard():
         self.size = size
         self.board = [EMPTY]*(self.size*self.size)
         self.boardHistory = []
-        self.initBoard()
         self.currentPlayer = BLACK
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
         self.changedPoints = {}
-        self.history = {}      
+        self.history = {}  
+        self.boardHistory.append([
+                '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', 'o', 'x', '.', '.', '.',
+                '.', '.', '.', 'x', 'o', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.',
+                '.', '.', '.', '.', '.', '.', '.', '.'])    
 
     def initBoard(self):
         mid = int(self.size/2)
@@ -23,7 +31,6 @@ class ReversiBoard():
         self.board[self.index2point(mid-1,mid-1)] = WHITE
         self.board[self.index2point(mid,mid-1)] = BLACK
         self.board[self.index2point(mid-1,mid)] = BLACK
-        self.boardHistory.append(self.board)
 
     def showBoard(self):
         colString = "   " + " ".join([str(i).center(3) for i  in range(1,self.size+1)])
@@ -147,20 +154,11 @@ class ReversiBoard():
             self.board[point] = color
         position = self.point2position(point)
         self.reverseColor(position, color,"change")
-        #self.change_current_player()
-        
-        self.boardHistory.append(self.board)
-
+        self.boardHistory.append(deepcopy(self.board))
         
     def undo(self):
-        print('should undo here -1',len(self.boardHistory),self.boardHistory[-1])
-        print('should undo here  0',len(self.boardHistory),self.boardHistory[0])
-        self.showBoard()
         self.boardHistory.pop()
-        print('should undo here - after pop -1',len(self.boardHistory),self.boardHistory[-1])
-        print('should undo here - after pop  0',len(self.boardHistory),self.boardHistory[0])
-        self.board = self.boardHistory[-1]
-        self.showBoard()
+        self.board = deepcopy(self.boardHistory[-1])
         
     def valid_move(self,i,j,i_step,j_step,color):
         #check if the adjacent cells has the same color
