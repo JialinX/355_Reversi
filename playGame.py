@@ -25,7 +25,6 @@ TODO:
 #class Cell:
     #chars ='bw' 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
-
 def showLegalMove(board, player1):
     move = board.getAllLegalMoves(player1)
     print(move)
@@ -62,19 +61,20 @@ def dealCommand(userInput, board, alphabeta):
     command = userInput.split()[0]
     if command =='h':
         board.printMenu()
-    elif command =='x':
+    elif command =='x': #user play first
         position  = board.position2point(userInput.split()[1])
-
+        #value, move = alphabeta.genMove(color)
         if position in board.getAllLegalMoves(BLACK):
             board.play(BLACK, position)
         else:
             print("invalid position for", BLACK)
 
-    elif command =='o':
+    elif command =='o':#computer play first
+        #print('here')
         position  = board.position2point(userInput.split()[1])
-
+        #value, move = alphabeta.genMove(color)
         if position in board.getAllLegalMoves(WHITE):
-            board.play(WHITE, position)
+            board.play(WHITE, move)
         else:
             print("invalid position for", WHITE)
             
@@ -82,14 +82,12 @@ def dealCommand(userInput, board, alphabeta):
         pass
     elif command =='g':
         color = userInput.split()[1]
-        
         value, move = alphabeta.genMove(color)
         print(value, move)
     elif command =='l':
         color = userInput.split()[1]
         showLegalMove(board, color)    
     elif command =='u':
-        print('\n ... Should undo :)\n')
         board.undo()
     elif command =='q':
         print('\n ... Bye :)\n')    
@@ -102,6 +100,7 @@ def dealCommand(userInput, board, alphabeta):
 def main():
     print("add message here")
     board = ReversiBoard(8)
+    board.initBoard()
     alphabeta = AlphaBetaGenMove(board)
 
     score = {BLACK:2, WHITE:2}

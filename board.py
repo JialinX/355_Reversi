@@ -15,17 +15,7 @@ class ReversiBoard():
         self.currentPlayer = BLACK
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
         self.changedPoints = {}
-        self.history = {}
-        self.boardHistory.append([
-                     '.', '.', '.', '.', '.', '.', '.', '.',
-                     '.', '.', '.', '.', '.', '.', '.', '.',
-                     '.', '.', '.', '.', '.', '.', '.', '.',
-                     '.', '.', '.', 'o', 'x', '.', '.', '.',
-                     '.', '.', '.', 'x', 'o', '.', '.', '.',
-                     '.', '.', '.', '.', '.', '.', '.', '.',
-                     '.', '.', '.', '.', '.', '.', '.', '.',
-                     '.', '.', '.', '.', '.', '.', '.', '.'])
-        
+        self.history = {}      
 
     def initBoard(self):
         mid = int(self.size/2)
@@ -87,7 +77,6 @@ class ReversiBoard():
         return isoString
 
     def addHistory(self, score):
-
         state = ''.join(self.board)
         self.history[state] = score
 
@@ -161,15 +150,17 @@ class ReversiBoard():
         #self.change_current_player()
         
         self.boardHistory.append(self.board)
-        print(self.boardHistory)
 
         
     def undo(self):
-        print('here',self.boardHistory)
+        print('should undo here -1',len(self.boardHistory),self.boardHistory[-1])
+        print('should undo here  0',len(self.boardHistory),self.boardHistory[0])
+        self.showBoard()
         self.boardHistory.pop()
-        print('here',self.boardHistory)
+        print('should undo here - after pop -1',len(self.boardHistory),self.boardHistory[-1])
+        print('should undo here - after pop  0',len(self.boardHistory),self.boardHistory[0])
         self.board = self.boardHistory[-1]
-        print(len(self.boardHistory))
+        self.showBoard()
         
     def valid_move(self,i,j,i_step,j_step,color):
         #check if the adjacent cells has the same color

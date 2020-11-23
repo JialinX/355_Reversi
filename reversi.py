@@ -1,6 +1,5 @@
 from board import ReversiBoard
 
-
 class AlphaBetaGenMove:
     
     def __init__(self, board):
@@ -24,7 +23,7 @@ class AlphaBetaGenMove:
             for j in range(self.board.size):
                 if board2d[i][j] == color:
                     total += self.weight[i][j]
-        print(total)
+        print('heuristic',total)
         return total
     
     def genMove(self, color):
@@ -35,34 +34,38 @@ class AlphaBetaGenMove:
         # alpha: best already explored option along path to the root for the maximizer
         # beta:  best already explored option along path to the root for the minimizer
         best = -9999
-        bestMove = None
         moves = self.board.getAllLegalMoves(color)
+        bestMove = moves[0]
         optColor = self.board.getOptColor(color)
-            
-        for move in moves:
-            self.board.play(color, move)
-            value = self.board.getHistory()
-            
-            if value == False:
-                value = self.min_alphabeta(optColor, color, depth+1, -9999, 9999)
-                self.board.addHistory(value)
+        self.board.play(color, move)
+        self.board.undo()
+        print(color, optColor)    
+        # for move in moves:
+        #     self.board.play(color, move)
+        #     #if this state is visited before 
+        #     value = self.board.getHistory()
+        #     print(value)
+        #     if value == False:
+        #         value = self.min_alphabeta(optColor, color, depth+1, -9999, 9999)
+        #         self.board.addHistory(value)
                 
-            self.board.undo()
-            if (value>best):
-                best = value
-                bestMove = move
+        #     self.board.undo()
+        #     if (value>best):
+        #         best = value
+        #         bestMove = move
                 
-        return move
+        return bestMove
     
     def min_alphabeta(self, color, originalColor, depth, alpha, beta):
+        print('min_',color,depth)
         localMin = 9999
         optColor = self.board.getOptColor(color)
         
-        if depth == 5 or self.board.isEnd():
+        if depth == 2 or self.board.isEnd():
             return self.getHeuristicWeight(originalColor)
     
         moves = self.board.getAllLegalMoves(color)
-        
+        print(moves)
         for move in moves:
             print('deep:',depth, 'before play')
             self.board.showBoard()
@@ -89,10 +92,11 @@ class AlphaBetaGenMove:
         return localMin
     
     def max_alphabeta(self, color, originalColor, depth, alpha, beta):
+        print('max_',color,depth)
         localMax = -9999
         optColor = self.board.getOptColor(color)
         
-        if depth == 5 or self.board.isEnd():
+        if depth == 2 or self.board.isEnd():
             return self.getHeuristicWeight(originalColor)
     
         moves = self.board.getAllLegalMoves(color)
