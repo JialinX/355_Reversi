@@ -1,12 +1,18 @@
 from board import ReversiBoard
 import random
 import time
+
+BLACK = 'x' # player black
+WHITE = 'o' # player white
+EMPTY = '.'
+
 class Cell:
   chars ='bw' 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
 def showLegalMove(board, player1):
     move = board.getAllLegalMoves(player1)
+    print(move)
     if len(move) == 0:
         print("You have no legal move!")
         return True
@@ -26,12 +32,12 @@ def main():
     while True:
         choose = input("Please specify the color of stone you want to use: ")
         if choose.lower() == "w" or choose.lower() == "white":
-            player1 = "w"
-            player2 = "b"
+            player1 = WHITE
+            player2 = BLACK
             break
         elif choose.lower() == "b" or choose.lower() == "black":
-            player1 = "b"
-            player2 = "w"
+            player1 = BLACK
+            player2 = WHITE
             break
 
     board.printMenu() 

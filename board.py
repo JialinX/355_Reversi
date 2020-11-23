@@ -127,14 +127,12 @@ class ReversiBoard():
     
     def getAllLegalMoves(self, color):
         legalMove = []
-        print(self.board)
         for point in range(len(self.board)):
             if self.board[point] == EMPTY: # to be changed to all adjcent cells instead of empty cells
-                 position = self.point2position(point)
-                 print(position)
-                 if self.reverseColor(position, color, "check"):
-                    print('append')
+                position = self.point2position(point)
+                if self.reverseColor(position, color, "check"):
                     legalMove.append(point)
+        print(legalMove)
         return legalMove
 
 
