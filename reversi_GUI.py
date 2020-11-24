@@ -27,11 +27,10 @@ def runGame():
     global running
     running = False
     #Title and shadow
-    screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#262525")
-    screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#000000")
+    screen.create_text(250,200,anchor="c",text="Reversi",font=("Consolas", 50),fill="black")
 
-    screen.create_rectangle(25+155*1, 300, 155+155*1, 350, fill="#fff", outline="#111")
-    screen.create_text(25+1*44+155*1.14,325,text="start", font=("Consolas",25),fill="#aaa")
+    screen.create_rectangle(200, 300, 300, 350, fill="white", outline="black")
+    screen.create_text(250,325,text="Start", font=("Consolas",25),fill="black")
     screen.update()
 
 def drawGridBackground():
@@ -92,5 +91,5 @@ screen.bind("<Key>",keyHandle)
 screen.focus_set()
 
 #Run forever
-root.wm_title("Othello")
+root.wm_title("Reversi")
 root.mainloop()
