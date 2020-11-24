@@ -11,7 +11,7 @@ EMPTY = '.'
 #https://github.com/JialinX/355_Reversi/blob/main/board.py
 #Tkinter setup
 root = Tk()
-screen = Canvas(root, width=500, height=600, background="#222",highlightthickness=0)
+screen = Canvas(root, width=500, height=600, background="#e0e0e0",highlightthickness=0)
 screen.pack()
 
 class ReversiBoard():
@@ -36,85 +36,43 @@ class ReversiBoard():
         self.oldboard = [EMPTY]*(self.size*self.size)
 
     def update(self):
-        print('update')
+        print('inside update')
         screen.delete("highlight")
         screen.delete("tile")
         board2d = self.boardTo2d(self.board)
         oldboard2d = self.boardTo2d(self.oldboard)
-        # print(board2d)
-        # print(oldboard2d)
-        for x in range(8):
-            for y in range(8):
+        cell_height = 500 / 8
+        cell_width = 500 / 8
+        for row in range(8):
+            for col in range(8):
                 #Could replace the circles with images later, if I want
-                if oldboard2d[y][x]=="o":
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#aaa",outline="#aaa")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#fff",outline="#fff")
-
-                elif oldboard2d[y][x]=="x":
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#000",outline="#000")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#111",outline="#111")
-        #Animation of new tiles
+                if board2d[row][col]=="o":
+                    screen.create_oval(col * cell_width,
+                        row * cell_height,
+                        (col + 1) * cell_width,
+                        (row + 1) * cell_height,
+                        tags="tile",
+                        fill = "#ffffff")       
+                elif board2d[row][col]=="x":
+                    screen.create_oval(col * cell_width,
+                        row * cell_height,
+                        (col + 1) * cell_width,
+                        (row + 1) * cell_height,
+                        tags="tile",
+                        fill = "#000000")    
         screen.update()
-        for x in range(8):
-            for y in range(8):
-                #Could replace the circles with images later, if I want
-                if board2d[y][x]!=oldboard2d[y][x] and board2d[y][x]=="o":
-                    screen.delete("{0}-{1}".format(x,y))
-                    #42 is width of tile so 21 is half of that
-                    #Shrinking
-                    for i in range(21):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
-                        if i%3==0:
-                            sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-                    #Growing
-                    for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
-                        if i%3==0:
-                            sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#aaa",outline="#aaa")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#fff",outline="#fff")
-                    screen.update()
 
-                elif board2d[y][x]!=oldboard2d[y][x] and board2d[y][x]=="x":
-                    screen.delete("{0}-{1}".format(x,y))
-                    #42 is width of tile so 21 is half of that
-                    #Shrinking
-                    for i in range(21):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
-                        if i%3==0:
-                            sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-                    #Growing
-                    for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
-                        if i%3==0:
-                            sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#000",outline="#000")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#111",outline="#111")
-                    screen.update()
-        print(self.currentPlayer)
-        moves = self.getAllLegalMoves(self.currentPlayer)
-        for m in moves:
-            x=int(self.point2position(m)[1])
-            y=int(self.point2position(m)[0])
-            screen.create_oval(68+50*x,68+50*y,32+50*(x+1),32+50*(y+1),tags="highlight",fill="#008000",outline="#008000")
+        if(self.currentPlayer == BLACK):
+            moves = self.getAllLegalMoves(self.currentPlayer)
+            for m in moves:
+                col=int(self.point2position(m)[1])
+                row=int(self.point2position(m)[0])
+                screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="#008000",tags="highlight")
+            screen.update()
         
         if not self.isEnd():
-            #Draw the scoreboard and update the screen
-            # self.drawScoreBoard()
-            # screen.update()
+            self.drawScoreBoard()
+            screen.update()
             if self.currentPlayer==WHITE:
                 value, move = alphabeta.genMove(WHITE)
                 self.makeMove(WHITE,move)
@@ -137,11 +95,11 @@ class ReversiBoard():
                     computer_score+=1
 
         if self.currentPlayer==BLACK:
-            player_colour = "green"
-            computer_colour = "gray"
+            player_colour = "black"
+            computer_colour = "white"
         else:
-            player_colour = "gray"
-            computer_colour = "green"
+            player_colour = "white"
+            computer_colour = "black"
 
         screen.create_oval(5,540,25,560,fill=player_colour,outline=player_colour)
         screen.create_oval(380,540,400,560,fill=computer_colour,outline=computer_colour)
@@ -386,28 +344,29 @@ def clickHandle(event):
     xMouse = event.x
     yMouse = event.y
 
+    cell_height = 500 / 8
+    cell_width = 500 / 8
     if running:
-        print(board.currentPlayer)
-        board2d = board.boardTo2d(board.board)
-        if xMouse>=450 and yMouse<=50:
-            root.destroy()
-        elif xMouse<=50 and yMouse<=50:
-            playGame()   
-        else:
-            #Is it the player's turn?
-            if board.currentPlayer==BLACK:
-                #Delete the highlights
-                x = int((event.x-50)/50)
-                y = int((event.y-50)/50)
-                moves = board.getAllLegalMoves(BLACK)
-               
-                for m in moves:
-                    row=int(board.point2position(m)[0])
-                    col=int(board.point2position(m)[1])
-                    print(y,row,'|||',x,col)
-                    if(y==row and col == x):
-                        print(m)
-                        board.makeMove(BLACK,m)
+        if board.currentPlayer==BLACK:
+            pointx = event.x
+            pointy = event.y
+            print(pointy, pointx)
+            y = int(pointy // cell_height)
+            if y == 8:
+                y -= 1
+            x = int(pointx // cell_width)
+            if x == 8:
+                x -= 1
+            print(y ,x)
+            moves = board.getAllLegalMoves(BLACK)
+            
+            for m in moves:
+                row=int(board.point2position(m)[0])
+                col=int(board.point2position(m)[1])
+                print(y,row,'|||',x,col)
+                if(y==row and col == x):
+                    print(m)
+                    board.makeMove(BLACK,m)
     else:
     	playGame()
 
@@ -418,58 +377,31 @@ def keyHandle(event):
     elif symbol.lower()=="q":
         root.destroy()
 
-def create_buttons():
-        #Restart button
-        #Background/shadow
-        screen.create_rectangle(0,5,50,55,fill="#000033", outline="#000033")
-        screen.create_rectangle(0,0,50,50,fill="#000088", outline="#000088")
-
-        #Arrow
-        screen.create_arc(5,5,45,45,fill="#000088", width="2",style="arc",outline="white",extent=300)
-        screen.create_polygon(33,38,36,45,40,39,fill="white",outline="white")
-
-        #Quit button
-        #Background/shadow
-        screen.create_rectangle(450,5,500,55,fill="#330000", outline="#330000")
-        screen.create_rectangle(450,0,500,50,fill="#880000", outline="#880000")
-        #"X"
-        screen.create_line(455,5,495,45,fill="white",width="3")
-        screen.create_line(495,5,455,45,fill="white",width="3")
-    
 def runGame():
     global running
     running = False
     #Title and shadow
-    screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#aaa")
-    screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#fff")
+    screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#262525")
+    screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#000000")
     
     screen.create_rectangle(25+155*1, 300, 155+155*1, 350, fill="#fff", outline="#111")
     screen.create_text(25+1*44+155*1.14,325,text="start", font=("Consolas",25),fill="#aaa")
     screen.update()
 
-def drawGridBackground(outline=False):
-	#If we want an outline on the board then draw one
-	if outline:
-		screen.create_rectangle(50,50,450,450,outline="#111")
-
-	#Drawing the intermediate lines
-	for i in range(7):
-		lineShift = 50+50*(i+1)
-
-		#Horizontal line
-		screen.create_line(50,lineShift,450,lineShift,fill="#111")
-
-		#Vertical line
-		screen.create_line(lineShift,50,lineShift,450,fill="#111")
-
-	screen.update()
+def drawGridBackground():
+    cell_height = 500 / 8
+    cell_width = 500 / 8
+    # Draw the horizontal lines first
+    for row in range(1, 8):
+        screen.create_line(0, row * cell_width, 500, row * cell_width)
+        screen.create_line(row * cell_height, 0, row * cell_height, 500)
 
 
 def playGame():
     global board, running, alphabeta
     running = True
     screen.delete(ALL)
-    create_buttons()
+    # create_buttons()
     board = 0
     #Draw the background
     drawGridBackground()
