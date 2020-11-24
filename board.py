@@ -90,6 +90,8 @@ class ReversiBoard:
             
             
             if self.player==WHITE:
+                screen.create_text(350,510,anchor="c",font=("Consolas",15), text="Computer's Turn",tags = "notification") 
+                screen.update()
                 sleep(0.5)
                 moves = self.getLegalMoves(self.player)
                 if len(moves) ==0 and not self.isEnd():
@@ -111,7 +113,8 @@ class ReversiBoard:
                             (row + 1) * cell_height-25,
                             tags="recent",
                             fill = "red")
-                    screen.create_text(220,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
+                    screen.delete("notification") 
+                    screen.create_text(170,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
                     screen.update()
 
 
@@ -252,7 +255,7 @@ class ReversiBoard:
         if legalMoves:
             return random.choice(legalMoves)
         return False
-
+     
 
     def playMove(self, point,color):
 
