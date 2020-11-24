@@ -140,7 +140,16 @@ class ReversiBoard:
 
         if self.noMovesForBoth():
             screen.delete("notification") 
-            screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
+            player_score = self.getScore(BLACK)
+            computer_score = self.getScore(WHITE)
+            if player_score > computer_score:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You wins")
+            elif player_score < computer_score:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer wins")
+            elif player_score == computer_score:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Tie")                
+            
+            
     def drawScoreBoard(self,screen):
         global moves
         #Deleting prior score elements

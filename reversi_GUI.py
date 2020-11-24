@@ -16,13 +16,6 @@ root = Tk()
 screen = Canvas(root, width=500, height=600, background="#e0e0e0",highlightthickness=0)
 screen.pack()
 
-def keyHandle(event):
-    symbol = event.keysym
-    if symbol.lower()=="r":
-        playGame()
-    elif symbol.lower()=="q":
-        root.destroy()
-
 def runGame():
     global running
     running = False
@@ -80,7 +73,6 @@ def clickHandle(event):
                 col=int(board.point2position(m)[1])-1
                 row=board.alpha2Row(board.point2position(m)[0])
                 if(y==row and col == x):
-                    print(row,col)
                     board.makeMove(BLACK,m,screen,alphabeta,m)
     else:
         playGame()
@@ -88,7 +80,6 @@ def clickHandle(event):
 runGame()
 
 screen.bind("<Button-1>", clickHandle)
-screen.bind("<Key>",keyHandle)
 screen.focus_set()
 
 #Run forever
