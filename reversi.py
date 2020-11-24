@@ -61,8 +61,6 @@ class AlphaBetaGenMove:
             return self.getHeuristicWeight(originalColor)
     
         moves = self.board.getAllLegalMoves(color)
-        if not moves:
-            return (0, None)
         
         for move in moves:
             self.board.play(color, move)
@@ -91,8 +89,6 @@ class AlphaBetaGenMove:
             return self.getHeuristicWeight(originalColor)
     
         moves = self.board.getAllLegalMoves(color)
-        if not moves:
-            return (0, None)
         
         for move in moves:
             self.board.play(color, move)     

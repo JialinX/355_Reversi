@@ -23,7 +23,7 @@ TODO:
 6. !!!Documentation
 
 8. update help menu with more intructions
-
+9. current player?
 '''
 #######################
 
@@ -199,20 +199,19 @@ def main():
     board.initBoard()
     alphabeta = AlphaBetaGenMove(board)
 
-    #score = {BLACK:2, WHITE:2}
  
     print()
     
     userColor = getUserColor()
     computerColor = board.getOptColor(userColor)
     board.printMenu()
-    print()
+    print("Initial board:")
     board.showBoard()
     print()
     # deal with first move if computer goes first
     if userColor == WHITE:
-        _ , move = alphabeta.genMove(WHITE)
-        board.play(WHITE, move)
+        _ , move = alphabeta.genMove(BLACK)
+        board.play(BLACK, move)
         board.showBoard()
         print("\ncomputer plays at", board.point2LetterPosition(move),"\n")
         
