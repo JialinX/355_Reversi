@@ -28,6 +28,7 @@ class ReversiBoard:
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
         self.boardHistory = []
         self.initBoard()
+        self.player = BLACK
     def alpha2Row(self, alpha):
         if alpha == 'a':
             return 0
@@ -71,30 +72,30 @@ class ReversiBoard:
                         fill = "#000000")    
         screen.update()
 
-        if(self.currentPlayer == BLACK):
-            moves = self.getLegalMoves(self.currentPlayer)
+        if(self.player == BLACK):
+            moves = self.getLegalMoves(self.player)
             for m in moves:
                 col=int(self.point2position(m)[1])-1
                 row=self.alpha2Row(self.point2position(m)[0])
-                print(row,col)
                 screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="#008000",tags="highlight")
             screen.update()
         
         if not self.isEnd():
             self.drawScoreBoard(screen)
             screen.update()
-            if self.currentPlayer==WHITE:
+            if self.player==WHITE:
                 value, move = alphabeta.genMove(WHITE)
                 self.makeMove(WHITE,move, screen,alphabeta)
-                col=int(self.point2position(m)[1])-1
-                row=self.alpha2Row(self.point2position(m)[0])
+                print("recommand",self.point2position(move),value)
+                col=int(self.point2position(move)[1])-1
+                row=self.alpha2Row(self.point2position(move)[0])
                 screen.create_oval(col * cell_width,
                         row * cell_height,
                         (col + 1) * cell_width,
                         (row + 1) * cell_height,
                         tags="tile",
                         fill = "#ff0000") 
-            screen.update()   
+                screen.update()   
         else:
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
@@ -106,7 +107,7 @@ class ReversiBoard:
 
         player_score = self.getScore(BLACK)
         computer_score = self.getScore(WHITE)
-        if self.currentPlayer==BLACK:
+        if self.player==BLACK:
             player_colour = "black"
             computer_colour = "white"
         else:
@@ -258,6 +259,7 @@ class ReversiBoard:
         self.change_current_player()
     
     def makeMove(self, color, point, screen,alphabeta):
+        print("inside make move")
         assert self.minpoint <= point <= self.maxpoint
         assert color in [BLACK, WHITE]
         position = self.point2position(point)
@@ -271,7 +273,7 @@ class ReversiBoard:
 
         position = self.point2position(point)
         self.reverse_color(position,color)
-        self.change_current_player()
+        self.player = BLACK if self.player == WHITE else WHITE
         self.update(screen,alphabeta)
         
 

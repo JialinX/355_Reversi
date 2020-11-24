@@ -66,25 +66,21 @@ def clickHandle(event):
     cell_height = 500 / 8
     cell_width = 500 / 8
     if running:
-        if board.currentPlayer==BLACK:
+        if board.player==BLACK:
             pointx = event.x
             pointy = event.y
-            print(pointy, pointx)
             y = int(pointy // cell_height)
             if y == 8:
                 y -= 1
             x = int(pointx // cell_width)
             if x == 8:
                 x -= 1
-            print(y ,x)
             moves = board.getLegalMoves(BLACK)
             
             for m in moves:
                 col=int(board.point2position(m)[1])-1
                 row=board.alpha2Row(board.point2position(m)[0])
-                print(y,row,'|||',x,col)
                 if(y==row and col == x):
-                    print(m)
                     board.makeMove(BLACK,m,screen,alphabeta)
     else:
         playGame()
