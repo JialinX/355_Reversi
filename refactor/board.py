@@ -126,6 +126,22 @@ class ReversiBoard:
 			return random.choice(legalMoves)
 		return False
 
+	def genGreedyMove(self, color):
+
+		legalMoves = self.getLegalMoves(color)
+		if legalMoves:
+			best_score, best_move = 0, None
+			for move in legalMoves:
+				copyBoard = deepcopy(self)
+				copyBoard.board[move] = color
+				score = copyBoard.getScore(color)
+				if score > best_score:
+					best_score,best_move = score,move
+
+			return best_move
+
+		return False
+
 
 	def playMove(self, point,color):
 

@@ -31,7 +31,7 @@ def main():
         	board.pass2 += 1
         elif len(moves) > 0:
         	board.pass2 = 0
-	        move = board.genMove(humanColor)
+	        move = board.genGreedyMove(humanColor)
 	        board.playMove(move,humanColor)
         	board.showBoard()
         _, comMove = alphabeta.genMove(board.computerColor)
