@@ -66,27 +66,28 @@ class ReversiBoard:
                 row=self.alpha2Row(self.point2position(m)[0])
                 screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="highlight")
                 
-            if len(moves) ==0 and not self.isEnd():
+            if len(moves) ==0 and not self.noMovesForBoth():
                 screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves.",tags = "notification")
-                screen.delete("notification") 
+                screen.update()
                 sleep(3)
+                screen.delete("notification") 
                 screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have to pass.",tags = "notification")
-                screen.delete("notification") 
+                screen.update()
                 sleep(1)
-                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer will do the next move.",tags = "notification")
                 screen.delete("notification") 
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer will move.",tags = "notification")
+                screen.update()
                 sleep(1)
+                screen.delete("notification")
                 self.player = BLACK if self.player == WHITE else WHITE   
-                self.pass2 +=1
-            else:
-                self.pass2 = 0
+
                 
             screen.update
         
         self.drawScoreBoard(screen)
         screen.update()        
         
-        if not self.isEnd():
+        if not self.noMovesForBoth():
             
             
             if self.player==WHITE:
@@ -94,12 +95,22 @@ class ReversiBoard:
                 screen.update()
                 sleep(0.5)
                 moves = self.getLegalMoves(self.player)
-                if len(moves) ==0 and not self.isEnd():
-                    self.pass2 +=1
+                screen.delete("notification") 
+                screen.update()
+                if len(moves) ==0 and not self.noMovesForBoth():
+                    #self.pass2 +=1
                     self.player = BLACK if self.player == WHITE else WHITE   
+                    screen.delete("notification") 
+                    screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer passes",tags = "notification")
+                    screen.update()
+                    sleep(2)
+                    screen.delete("notification") 
+                    screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You will move.",tags = "notification")
+                    screen.update()                    
+                    
                 else: 
                     value, move = alphabeta.genMove(WHITE)
-                    self.pass2 = 0
+                    #self.pass2 = 0
                     
                     self.makeMove(WHITE,move, screen,alphabeta)
                     
@@ -118,7 +129,7 @@ class ReversiBoard:
                     screen.update()
 
 
-        if self.isEnd():
+        if self.noMovesForBoth():
             screen.delete("notification") 
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
         wmoves = self.getLegalMoves(WHITE)
@@ -158,7 +169,12 @@ class ReversiBoard:
 
         return legalMoves
 
-
+    
+    def noMovesForBoth(self):
+        black = len(self.getLegalMoves(BLACK))
+        white = len(self.getLegalMoves(WHITE))
+        return black + white == 0
+    
     def setBothColor(self, color):
 
         self.humanColor = color
