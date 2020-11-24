@@ -1,6 +1,5 @@
 import numpy as np
 from copy import deepcopy
-from tkinter import *
 from time import *
 from reversi import AlphaBeta
 import random
@@ -13,9 +12,6 @@ BORDER = '#' # border point
 #UI is from
 #https://github.com/JialinX/355_Reversi/blob/main/board.py
 #Tkinter setup
-root = Tk()
-screen = Canvas(root, width=500, height=600, background="#e0e0e0",highlightthickness=0)
-screen.pack()
 
 class ReversiBoard:
 
@@ -50,7 +46,7 @@ class ReversiBoard:
         if alpha == 'h':
             return 7
     
-    def update(self):
+    def update(self, screen, alphabeta):
         print('inside update')
         screen.delete("highlight")
         screen.delete("tile")
@@ -85,29 +81,31 @@ class ReversiBoard:
             screen.update()
         
         if not self.isEnd():
-            self.drawScoreBoard()
+            self.drawScoreBoard(screen)
             screen.update()
             if self.currentPlayer==WHITE:
                 value, move = alphabeta.genMove(WHITE)
-                self.makeMove(WHITE,move)
+                self.makeMove(WHITE,move, screen,alphabeta)
+                col=int(self.point2position(m)[1])-1
+                row=self.alpha2Row(self.point2position(m)[0])
+                screen.create_oval(col * cell_width,
+                        row * cell_height,
+                        (col + 1) * cell_width,
+                        (row + 1) * cell_height,
+                        tags="tile",
+                        fill = "#ff0000") 
+            screen.update()   
         else:
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
-    def drawScoreBoard(self):
+    def drawScoreBoard(self,screen):
         global moves
         #Deleting prior score elements
         screen.delete("score")
         board2d = self.get_twoD_board()
-        #Scoring based on number of tiles
-        player_score = 0
-        computer_score = 0
-        for x in range(8):
-            for y in range(8):
-                if board2d[x][y]=="x":
-                    player_score+=1
-                elif board2d[x][y]=="o":
-                    computer_score+=1
 
+        player_score = self.getScore(BLACK)
+        computer_score = self.getScore(WHITE)
         if self.currentPlayer==BLACK:
             player_colour = "black"
             computer_colour = "white"
@@ -259,7 +257,7 @@ class ReversiBoard:
         self.reverse_color(position,color)
         self.change_current_player()
     
-    def makeMove(self, color, point):
+    def makeMove(self, color, point, screen,alphabeta):
         assert self.minpoint <= point <= self.maxpoint
         assert color in [BLACK, WHITE]
         position = self.point2position(point)
@@ -274,7 +272,7 @@ class ReversiBoard:
         position = self.point2position(point)
         self.reverse_color(position,color)
         self.change_current_player()
-        self.update()
+        self.update(screen,alphabeta)
         
 
     def undo(self):
@@ -327,88 +325,3 @@ class ReversiBoard:
             return 'Tie'
         else:
             return WHITE
-
-
-
-def keyHandle(event):
-    symbol = event.keysym
-    if symbol.lower()=="r":
-        playGame()
-    elif symbol.lower()=="q":
-        root.destroy()
-
-def runGame():
-    global running
-    running = False
-    #Title and shadow
-    screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#262525")
-    screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#000000")
-
-    screen.create_rectangle(25+155*1, 300, 155+155*1, 350, fill="#fff", outline="#111")
-    screen.create_text(25+1*44+155*1.14,325,text="start", font=("Consolas",25),fill="#aaa")
-    screen.update()
-
-def drawGridBackground():
-    cell_height = 500 / 8
-    cell_width = 500 / 8
-    # Draw the horizontal lines first
-    for row in range(1, 8):
-        screen.create_line(0, row * cell_width, 500, row * cell_width)
-        screen.create_line(row * cell_height, 0, row * cell_height, 500)
-
-
-def playGame():
-    global board, running, alphabeta
-    running = True
-    screen.delete(ALL)
-    # create_buttons()
-    board = 0
-    #Draw the background
-    drawGridBackground()
-    #Create the board and update it
-    board = ReversiBoard(8)
-    alphabeta = AlphaBeta(board)
-    board.initBoard()
-    board.update()         
-
-#When the user clicks, if it's a valid move, make the move
-def clickHandle(event):
-    global depth
-    xMouse = event.x
-    yMouse = event.y
-
-    cell_height = 500 / 8
-    cell_width = 500 / 8
-    if running:
-        if board.currentPlayer==BLACK:
-            pointx = event.x
-            pointy = event.y
-            print(pointy, pointx)
-            y = int(pointy // cell_height)
-            if y == 8:
-                y -= 1
-            x = int(pointx // cell_width)
-            if x == 8:
-                x -= 1
-            print(y ,x)
-            moves = board.getLegalMoves(BLACK)
-            
-            for m in moves:
-                col=int(board.point2position(m)[1])-1
-                row=board.alpha2Row(board.point2position(m)[0])
-                print(y,row,'|||',x,col)
-                if(y==row and col == x):
-                    print(m)
-                    board.makeMove(BLACK,m)
-    else:
-        playGame()
-
-runGame()
-
-screen.bind("<Button-1>", clickHandle)
-screen.bind("<Key>",keyHandle)
-screen.focus_set()
-
-#Run forever
-root.wm_title("Othello")
-root.mainloop()
