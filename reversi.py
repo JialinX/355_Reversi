@@ -30,6 +30,7 @@ class AlphaBetaGenMove:
         return move
     
     def alphabeta(self, color, depth):
+        print("alphaBeta")
         # alpha: best already explored option along path to the root for the maximizer
         # beta:  best already explored option along path to the root for the minimizer
         best = -9999

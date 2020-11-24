@@ -1,6 +1,8 @@
 import numpy as np
 from copy import deepcopy
 from tkinter import *
+from time import *
+from reversi import AlphaBetaGenMove
 
 BLACK = 'x' # player black
 WHITE = 'o' # player white
@@ -10,7 +12,6 @@ EMPTY = '.'
 root = Tk()
 screen = Canvas(root, width=500, height=600, background="#222",highlightthickness=0)
 screen.pack()
-global board, running
 
 class ReversiBoard():
 
@@ -32,6 +33,7 @@ class ReversiBoard():
                 '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.'])
         self.oldboard = [EMPTY]*(self.size*self.size)
+        self.newboard = [EMPTY]*(self.size*self.size)
 
     def update(self):
         print('update')
@@ -57,89 +59,70 @@ class ReversiBoard():
             for y in range(8):
                 #Could replace the circles with images later, if I want
                 if board2d[x][y]!=oldboard2d[x][y] and board2d[x][y]=="o":
-                    screen.delete("{0}-{1}".format(x,y))
+                    screen.delete("{0}-{1}".format(y,x))
                     #42 is width of tile so 21 is half of that
                     #Shrinking
                     for i in range(21):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
+                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#000",outline="#000") #black
+                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#111",outline="#111")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
                     #Growing
                     for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
+                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#aaa",outline="#aaa") #grey
+                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#fff",outline="#fff") #white
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#aaa",outline="#aaa")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#fff",outline="#fff")
+                    screen.create_oval(54+50*y,54+50*x,96+50*y,96+50*x,tags="tile",fill="#aaa",outline="#aaa")
+                    screen.create_oval(54+50*y,52+50*x,96+50*y,94+50*x,tags="tile",fill="#fff",outline="#fff")
                     screen.update()
 
                 elif board2d[x][y]!=oldboard2d[x][y] and board2d[x][y]=="x":
-                    screen.delete("{0}-{1}".format(x,y))
+                    screen.delete("{0}-{1}".format(y,x))
                     #42 is width of tile so 21 is half of that
                     #Shrinking
                     for i in range(21):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
+                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#aaa",outline="#aaa")
+                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#fff",outline="#fff")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
                     #Growing
                     for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
+                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#000",outline="#000")
+                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#111",outline="#111")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
 
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#000",outline="#000")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#111",outline="#111")
+                    screen.create_oval(54+50*y,54+50*x,96+50*y,96+50*x,tags="tile",fill="#000",outline="#000")
+                    screen.create_oval(54+50*y,52+50*x,96+50*y,94+50*x,tags="tile",fill="#111",outline="#111")
                     screen.update()
         
-        # for i in range(8):
-        #     for j in range(8):
-        #         for dire in self.directions:
-        #             i_step,j_step = dire
-        #             if i+i_step >= 0 and i+i_step < self.size and j+j_step >=0 and j+j_step < self.size:
-        #                 valid = self.valid_move(i+i_step,j+j_step,i_step,j_step,self.currentPlayer)
-        #                 if valid:
         moves = self.getAllLegalMoves(BLACK)
         for m in moves:
             x=int(self.point2position(m)[0])
             y=int(self.point2position(m)[1])
-            screen.create_oval(68+50*x,68+50*y,32+50*(x+1),32+50*(y+1),tags="highlight",fill="#008000",outline="#008000")
+            screen.create_oval(68+50*y,68+50*x,32+50*(y+1),32+50*(x+1),tags="highlight",fill="#008000",outline="#008000")
         
-        # if not self.won:
-        #     #Draw the scoreboard and update the screen
-        #     self.drawScoreBoard()
-        #     screen.update()
-        #     #If the computer is AI, make a move
-        #     if self.player==1:
-        #         startTime = time()
-        #         self.oldarray = self.array
-        #         alphaBetaResult = self.alphaBeta(self.array,depth,-float("inf"),float("inf"),1)
-        #         self.array = alphaBetaResult[1]
-
-        #         if len(alphaBetaResult)==3:
-        #             position = alphaBetaResult[2]
-        #             self.oldarray[position[0]][position[1]]="b"
-
-        #         self.player = 1-self.player
-        #         deltaTime = round((time()-startTime)*100)/100
-        #         if deltaTime<2:
-        #             sleep(2-deltaTime)
-        #         nodes = 0
-        #         #Player must pass?
-        #         self.passTest()
-        # else:
-            # screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
+        if not self.isEnd():
+            #Draw the scoreboard and update the screen
+            self.drawScoreBoard()
+            screen.update()
+            #If the computer is AI, make a move
+            print(self.currentPlayer)
+            if self.currentPlayer==WHITE:
+                value, move = alphabeta.genMove(WHITE)
+                print(value,move)
+                self.makeMove(move)
+        else:
+            screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
     def drawScoreBoard(self):
         global moves
@@ -156,7 +139,7 @@ class ReversiBoard():
                 elif board2d[x][y]=="o":
                     computer_score+=1
 
-        if self.player==WHITE:
+        if self.currentPlayer==BLACK:
             player_colour = "green"
             computer_colour = "gray"
         else:
@@ -179,6 +162,7 @@ class ReversiBoard():
         self.board[self.index2point(mid,mid-1)] = BLACK
         self.board[self.index2point(mid-1,mid)] = BLACK
         self.oldboard = deepcopy(self.board)
+        self.newboard = deepcopy(self.board)
 
     def showBoard(self):
         colString = "   " + " ".join([str(i).center(3) for i  in range(1,self.size+1)])
@@ -243,27 +227,6 @@ class ReversiBoard():
                 return self.history[state]
         return False
 
-    #convert position str like "a1" to point like 0 as the index in self.board
-
-    #def makeMove(self, cmd):
-        #cmd = cmd.split()
-        
-        
-        #if len(cmd)==2:
-          #ch = cmd[0][0]
-          #if ch in "bw":
-            #q, n = cmd[1][0], cmd[1][1:]
-            #if q.isalpha() and n.isdigit():
-              #x, y = ord(q)-ord('a'),int(n) - 1
-              #if x>=0 and x < self.size and y>=0 and y < self.size:
-                #point = self.index2point(x,y)
-                #if point in self.getAllLegalMoves(ch):
-                    #self.play(ch,point)
-                    #return True
-                
-        #print('\n Not valid')
-        #return False
-
     def position2point(self, position):
         letter, col = position
         col = int(col)
@@ -298,11 +261,24 @@ class ReversiBoard():
         self.changedPoints = {}
 
     def play(self, color, point):
-        self.oldboard = deepcopy(self.board)
         if self.board[point] == EMPTY:
             self.board[point] = color
         position = self.point2position(point)
         self.reverseColor(position, color,"change")
+        # self.showBoard()
+        self.boardHistory.append(deepcopy(self.board))
+
+    def makeMove(self, color, point):
+        print(color,point)
+        self.oldboard = deepcopy(self.board)
+        if self.board[point] == EMPTY:
+            self.board[point] = color
+        self.newboard = deepcopy(self.board)
+        position = self.point2position(point)
+        self.reverseColor(position, color,"change")
+        self.change_current_player()
+        self.showBoard()
+        self.update()
         self.boardHistory.append(deepcopy(self.board))
         
     def undo(self):
@@ -414,7 +390,7 @@ def clickHandle(event):
     global depth
     xMouse = event.x
     yMouse = event.y
-    print(running)
+
     if running:
         print(board.currentPlayer)
         board2d = board.boardTo2d(board.board)
@@ -428,19 +404,15 @@ def clickHandle(event):
                 #Delete the highlights
                 x = int((event.x-50)/50)
                 y = int((event.y-50)/50)
-                moves = self.getAllLegalMoves(BLACK)
-                print(x,y)
+                moves = board.getAllLegalMoves(BLACK)
+               
                 for m in moves:
-                    row=int(self.point2position(m)[0])
-                    col=int(self.point2position(m)[1])
-                    if(x==row and col == y):
-                        board.play(m)
-                #Determine the grid index for where the mouse was clicked
-                
-                #If the click is inside the bounds and the move is valid, move to that location
-                #if 0<=x<=7 and 0<=y<=7:
-                    
-                                    # board.play(pos)
+                    row=int(board.point2position(m)[0])
+                    col=int(board.point2position(m)[1])
+                    print(y,row,'|||',x,col)
+                    if(y==row and col == x):
+                        print(m)
+                        board.makeMove(BLACK,m)
     else:
     	playGame()
 
@@ -471,6 +443,7 @@ def create_buttons():
     
 def runGame():
     global running
+    running = False
     #Title and shadow
     screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#aaa")
     screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#fff")
@@ -508,15 +481,16 @@ def drawGridBackground(outline=False):
 
 
 def playGame():
+    global board, running, alphabeta
     running = True
     screen.delete(ALL)
     create_buttons()
     board = 0
-    print(running)
     #Draw the background
     drawGridBackground()
     #Create the board and update it
     board = ReversiBoard(8)
+    alphabeta = AlphaBetaGenMove(board)
     board.initBoard()
     board.update()         
 
