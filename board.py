@@ -74,7 +74,7 @@ class ReversiBoard:
 
         if(self.player == BLACK):
             moves = self.getLegalMoves(self.player)
-            print("legal",len(moves))
+            print("legal",len(moves),moves)
             for m in moves:
                 col=int(self.point2position(m)[1])-1
                 row=self.alpha2Row(self.point2position(m)[0])
@@ -88,7 +88,7 @@ class ReversiBoard:
                 self.pass2 = 0
                 
             screen.update()
-        
+
         if not self.isEnd():
             self.drawScoreBoard(screen)
             screen.update()
@@ -102,8 +102,6 @@ class ReversiBoard:
                     value, move = alphabeta.genMove(WHITE)
                     self.pass2 = 0
                     
-                    self.makeMove(WHITE,move, screen,alphabeta)
-                    
                     col=int(self.point2position(move)[1])-1
                     row=self.alpha2Row(self.point2position(move)[0])
             
@@ -114,6 +112,7 @@ class ReversiBoard:
                             (row + 1) * cell_height-25,
                             tags="recent",
                             fill = "#ff0000")
+                    self.makeMove(WHITE,move, screen,alphabeta)
                     screen.create_text(220,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
                     screen.update()
 
