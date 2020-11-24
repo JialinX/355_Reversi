@@ -80,6 +80,7 @@ def clickHandle(event):
                 col=int(board.point2position(m)[1])-1
                 row=board.alpha2Row(board.point2position(m)[0])
                 if(y==row and col == x):
+                    print(row,col)
                     board.makeMove(BLACK,m,screen,alphabeta)
     else:
         playGame()

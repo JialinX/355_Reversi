@@ -34,7 +34,7 @@ class ReversiBoard:
         return "abcdefgh".index(alpha)
     
     def update(self, screen, alphabeta):
-        screen.delete("highlight")
+        screen.delete("greenDot")
         screen.delete("tile")    
         screen.delete("notification") 
         board2d = self.get_twoD_board()
@@ -60,11 +60,10 @@ class ReversiBoard:
 
         if(self.player == BLACK):
             moves = self.getLegalMoves(self.player)
-            print("legal",len(moves),moves)
             for m in moves:
                 col=int(self.point2position(m)[1])-1
                 row=self.alpha2Row(self.point2position(m)[0])
-                screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="highlight")
+                screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="greenDot")
                 
             if len(moves) ==0 and not self.noMovesForBoth():
                 screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves.",tags = "notification")
@@ -82,7 +81,7 @@ class ReversiBoard:
                 self.player = BLACK if self.player == WHITE else WHITE   
 
                 
-            screen.update
+            #screen.update
         
         self.drawScoreBoard(screen)
         screen.update()        
@@ -103,10 +102,15 @@ class ReversiBoard:
                     screen.delete("notification") 
                     screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer passes",tags = "notification")
                     screen.update()
-                    sleep(2)
+                    sleep(3)
                     screen.delete("notification") 
                     screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You will move.",tags = "notification")
                     screen.update()                    
+                    
+                    for m in self.getLegalMoves(self.player):
+                        col=int(self.point2position(m)[1])-1
+                        row=self.alpha2Row(self.point2position(m)[0])
+                        screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="greenDot")                    
                     
                 else: 
                     value, move = alphabeta.genMove(WHITE)
@@ -117,12 +121,12 @@ class ReversiBoard:
                     col=int(self.point2position(move)[1])-1
                     row=self.alpha2Row(self.point2position(move)[0])
             
-                    screen.delete("recent")                    
+                    screen.delete("redDot")                    
                     screen.create_oval(col * cell_width+25,
                             row * cell_height+25,
                             (col + 1) * cell_width-25,
                             (row + 1) * cell_height-25,
-                            tags="recent",
+                            tags="redDot",
                             fill = "red")
                     screen.delete("notification") 
                     screen.create_text(170,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
@@ -132,11 +136,11 @@ class ReversiBoard:
         if self.noMovesForBoth():
             screen.delete("notification") 
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
-        wmoves = self.getLegalMoves(WHITE)
-        bmoves = self.getLegalMoves(BLACK)
-        if wmoves == bmoves == 0:
-            screen.delete("notification") 
-            screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
+        #wmoves = self.getLegalMoves(WHITE)
+        #bmoves = self.getLegalMoves(BLACK)
+        #if wmoves == bmoves == 0:
+            #screen.delete("notification") 
+            #screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
     def drawScoreBoard(self,screen):
         global moves
