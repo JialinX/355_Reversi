@@ -2,11 +2,14 @@ import numpy as np
 from copy import deepcopy
 from tkinter import *
 from time import *
-from reversi import AlphaBetaGenMove
+from reversi import AlphaBeta
+import random
+from enum import Enum
 
 BLACK = 'x' # player black
 WHITE = 'o' # player white
-EMPTY = '.'
+EMPTY = '.' # empty point
+BORDER = '#' # border point
 #UI is from
 #https://github.com/JialinX/355_Reversi/blob/main/board.py
 #Tkinter setup
@@ -14,38 +17,48 @@ root = Tk()
 screen = Canvas(root, width=500, height=600, background="#e0e0e0",highlightthickness=0)
 screen.pack()
 
-class ReversiBoard():
+class ReversiBoard:
 
-    def __init__(self, size):
+    def __init__(self,size):
         self.size = size
-        self.board = [EMPTY]*(self.size*self.size)
-        self.boardHistory = []
+        self.computerColor = None
+        self.humanColor = None
         self.currentPlayer = BLACK
+        self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        self.maxpoint = (self.size+2)*self.size + self.size
+        self.minpoint = self.size+3
+        self.NS = size + 2
+        self.pass2 = 0
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
-        self.changedPoints = {}
-        self.history = {}  
-        self.boardHistory.append([
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', 'o', 'x', '.', '.', '.',
-                '.', '.', '.', 'x', 'o', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.'])
-        self.oldboard = [EMPTY]*(self.size*self.size)
-
+        self.boardHistory = []
+        self.initBoard()
+    def alpha2Row(self, alpha):
+        if alpha == 'a':
+            return 0
+        if alpha == 'b':
+            return 1
+        if alpha == 'c':
+            return 2
+        if alpha == 'd':
+            return 3
+        if alpha == 'e':
+            return 4
+        if alpha == 'f':
+            return 5
+        if alpha == 'g':
+            return 6
+        if alpha == 'h':
+            return 7
+    
     def update(self):
         print('inside update')
         screen.delete("highlight")
         screen.delete("tile")
-        board2d = self.boardTo2d(self.board)
-        oldboard2d = self.boardTo2d(self.oldboard)
+        board2d = self.get_twoD_board()
         cell_height = 500 / 8
         cell_width = 500 / 8
         for row in range(8):
             for col in range(8):
-                #Could replace the circles with images later, if I want
                 if board2d[row][col]=="o":
                     screen.create_oval(col * cell_width,
                         row * cell_height,
@@ -63,10 +76,11 @@ class ReversiBoard():
         screen.update()
 
         if(self.currentPlayer == BLACK):
-            moves = self.getAllLegalMoves(self.currentPlayer)
+            moves = self.getLegalMoves(self.currentPlayer)
             for m in moves:
-                col=int(self.point2position(m)[1])
-                row=int(self.point2position(m)[0])
+                col=int(self.point2position(m)[1])-1
+                row=self.alpha2Row(self.point2position(m)[0])
+                print(row,col)
                 screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="#008000",tags="highlight")
             screen.update()
         
@@ -83,7 +97,7 @@ class ReversiBoard():
         global moves
         #Deleting prior score elements
         screen.delete("score")
-        board2d = self.boardTo2d(self.board)
+        board2d = self.get_twoD_board()
         #Scoring based on number of tiles
         player_score = 0
         computer_score = 0
@@ -109,274 +123,212 @@ class ReversiBoard():
         screen.create_text(400,550,anchor="w", tags="score",font=("Consolas", 50),fill="black",text=computer_score)
 
         moves = player_score+computer_score
-
-    def initBoard(self):
-        mid = int(self.size/2)
-        self.board[self.index2point(mid,mid)] = WHITE
-        self.board[self.index2point(mid-1,mid-1)] = WHITE
-        self.board[self.index2point(mid,mid-1)] = BLACK
-        self.board[self.index2point(mid-1,mid)] = BLACK
-        self.oldboard = deepcopy(self.board)
-
-    def showBoard(self):
-        colString = " " + "".join([str(i).center(3) for i  in range(1,self.size+1)])
-        alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        board2d = self.boardTo2d()
-        #sep  = f"  +{'-' * (3*self.size + self.size-1)}+"
-        print(colString)
-        #print(sep)
-        for row in range(self.size):
-            strRow = [str(i).center(3) for i in board2d[row]]
-            #rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
-            rowString =  str(alphabet[row]) + "".join(strRow)
-            print(rowString)
-            #print(sep)
-        
-    def boardTo2d(self,board):
-        board2d = [[0 for i in range(self.size)] for j in range(self.size)]
-        for row in range(self.size):
-            for col in range(self.size):
-                point = self.index2point(row,col)
-                board2d[row][col] = board[point]
-        return board2d
-
-    def printMenu(self):
-        print('  h            help menu')
-        print('  b            board')
-        print('  x a2         play x at a2')
-        print('  o g3         play o at g3')
-        print('  . e3         erase e3')
-        print('  g x/o        genmove for x/o')
-        print('  l x/o        show legal moves for x/o')
-        print('  u            undo')
-
-    def board2string(self, state):
-
-        boardString = ""
-        for ix,iy in np.ndindex(state.shape):
-            boardString += state[ix,iy]
-
-        return boardString
-
-    def getIso(self):
-
-        npboard = np.array(self.board)
-        board2d = np.reshape(npboard, (-1, 2))
-        leftRightFlipBoard = np.fliplr(board2d)
-        upDownFlipBoard = np.flipud(board2d)
-        isoString = [self.board2string(board2d),self.board2string(np.rot90(board2d, 1)),
-                    self.board2string(np.rot90(board2d, 2)),self.board2string(np.rot90(board2d, 3)),
-                    self.board2string(upDownFlipBoard),self.board2string(leftRightFlipBoard),
-                    self.board2string(np.rot90(leftRightFlipBoard,1)),self.board2string(np.rot90(upDownFlipBoard,1))]
-
-        return isoString
-
-    def addHistory(self, score):
-        state = ''.join(self.board)
-        self.history[state] = score
-
-    def getHistory(self):
-
-        boardIso = self.getIso()
-        for state in boardIso:
-            if state in self.history:
-                return self.history[state]
-        return False
-
-   
-    def position2point(self, position):
-        letter, col = position
-        col = int(col)
-        col -= 1
-        alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        row = alphabet.index(letter)
-
-        return self.index2point(row,col)
-
-    def index2point(self, row, col):
-
-        return (self.size) * row + col
-
-    def point2position(self,point):
-
-        return point// self.size,point % self.size
     
-    def point2LetterPosition(self,point):
-        alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        
-        return alphabet[point//self.size]+str(point % self.size+1)  
-    
-    def getAllLegalMoves(self, color):
-        legalMove = []
-        for point in range(len(self.board)):
+    def getLegalMoves(self, color):
+        assert color in [BLACK, WHITE]
+        legalMoves = []
+        for point in range(self.minpoint, self.maxpoint+1):
             if self.board[point] == EMPTY:
                 position = self.point2position(point)
-                if self.reverseColor(position, color, "check"):
-                    legalMove.append(point)
-        return legalMove
+
+                valid, end = self.isPositionValid(position, color)
+                if valid:
+                    legalMoves.append(point)
+
+        return legalMoves
 
 
-    def erase(self, point):
-        self.board[point] = EMPTY
-        for key in self.changedPoints:
-            self.board[key] = self.changedPoints[key]
-        self.changedPoints = {}
+    def setBothColor(self, color):
 
-    def play(self, color, point):
-        if self.board[point] == EMPTY:
-            self.board[point] = color
+        self.humanColor = color
+        self.computerColor = WHITE if color == BLACK else BLACK
+
+    def row_start(self, row):
+        return row * self.NS + 1
+
+    def initBoard(self):
+
+        self.board = np.full(pow((self.size + 2),2), BORDER, dtype = 'U')
+        for row in range(1, self.size + 1):
+            start = self.row_start(row)
+            self.board[start : start + self.size] = EMPTY
+        self.board[44],self.board[55] = WHITE,WHITE
+        self.board[45],self.board[54] = BLACK,BLACK
+
+    def get_twoD_board(self):
+        board2d = [[EMPTY for i in range(self.size)] for j in range(self.size)]
+        for row in range(self.size):
+            start = self.row_start(row + 1)
+            board2d[row] = self.board[start : start + self.size]
+        return board2d
+
+    def showBoard(self):
+
+        colString = " " + "".join([str(i).center(3) for i  in range(1,self.size+1)])
+        board2d = self.get_twoD_board()
+        print(colString)
+        for row in range(self.size):
+            strRow = [str(i).center(3) for i in board2d[row]]
+            rowString =  str(self.alphabet[row]) + "".join(strRow)
+            print(rowString)
+
+    def position2point(self,position):
+
+        letter, col = position
+        assert letter in self.alphabet[:self.size]
+        col = int(col)
+        assert 1 <= col <= self.size
+        row = self.alphabet.index(letter)
+        assert 0 <= row <=  self.size - 1
+        point = (row+1)*(self.size+2) + col
+        assert self.minpoint <= point <= self.maxpoint
+        return point
+
+    def point2position(self,point):
+        assert self.minpoint <= point <= self.maxpoint
+        return self.alphabet[(point//(self.size+2)) - 1]+str(point % (self.size+2))
+
+    def getScore(self, color):
+
+        assert color in [BLACK, WHITE]
+        score = 0
+        for point in self.board:
+            if point == color:
+                score += 1
+        return score
+
+    def isPositionValid(self, position, color):
+
+        assert color in [BLACK, WHITE]
+        letter, col = position
+        assert letter in self.alphabet[:self.size]
+        j = int(col)
+        assert 1 <= j <= self.size
+        i = self.alphabet.index(letter) + 1
+        for item in self.directions:
+            i_step,j_step = item
+            valid,end = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
+            if valid:
+                return True,end
+
+        return False,None
+
+    def valid_move(self,i,j,i_step,j_step,color):
+
+        assert color in [BLACK, WHITE]
+        point = i * (self.size+2) + j
+
+        if self.board[point] in [EMPTY,BORDER,color]:
+            return False,None
+        else:
+            return self.check_directions(i+i_step,j+j_step, i_step, j_step,color)
+
+    def check_directions(self, i,j,i_step,j_step,color):
+
+        assert color in [BLACK, WHITE]
+        point = i * (self.size+2) + j
+        if self.board[point] == color:
+            return True, [i,j]
+        elif self.board[point] in [EMPTY, BORDER]:
+            return False, None
+
+        return self.check_directions(i+i_step,j+j_step, i_step,j_step,color)
+
+    def genMove(self,color):
+        legalMoves = self.getLegalMoves(color)
+        if legalMoves:
+            return random.choice(legalMoves)
+        return False
+
+
+    def playMove(self, point,color):
+
+        assert self.minpoint <= point <= self.maxpoint
+        assert color in [BLACK, WHITE]
+
         position = self.point2position(point)
-        self.reverseColor(position, color,"change")
-        # self.showBoard()
-        self.boardHistory.append(deepcopy(self.board))
+        if not self.isPositionValid(position, color):
+            return False
 
-    def makeMove(self, color, point):
-        self.oldboard = deepcopy(self.board)
-        self.showBoard()
         if self.board[point] == EMPTY:
+            copyBoard = deepcopy(self.board)
+            self.boardHistory.append(copyBoard)
             self.board[point] = color
+
         position = self.point2position(point)
-        self.reverseColor(position, color,"change")
+        self.reverse_color(position,color)
         self.change_current_player()
-        self.boardHistory.append(deepcopy(self.board))
-        self.showBoard()
+    
+    def makeMove(self, color, point):
+        assert self.minpoint <= point <= self.maxpoint
+        assert color in [BLACK, WHITE]
+        position = self.point2position(point)
+        if not self.isPositionValid(position, color):
+            return False
+
+        if self.board[point] == EMPTY:
+            copyBoard = deepcopy(self.board)
+            self.boardHistory.append(copyBoard)
+            self.board[point] = color
+
+        position = self.point2position(point)
+        self.reverse_color(position,color)
+        self.change_current_player()
         self.update()
         
-        
+
     def undo(self):
-        self.boardHistory.pop()
-        self.board = deepcopy(self.boardHistory[-1])
-        
-    def valid_move(self,i,j,i_step,j_step,color):
-        #check if the adjacent cells has the same color
-        #if it's the same color or empty, stop
-        point = self.index2point(i,j)
-        if self.board[point] == color or self.board[point] == EMPTY or point < 0:
-            return False
 
-        return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
+        self.board = self.boardHistory.pop()
 
+    def reverse_color(self, position, color):
 
-    def check_directions(self,i,j,i_step,j_step,color):
-        point = self.index2point(i,j)
-        if self.board[point] == color:
-            return True
-
-        elif self.board[point] == EMPTY or point < 0:
-            return False
-
-        else:
-            return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
-
-
-    def reverseColor(self,position,color,code):
-        #check moves
-        i,j = position
-        for dire in self.directions:
-            i_step,j_step = dire
-            try:
-                if i+i_step >= 0 and i+i_step < self.size and j+j_step >=0 and j+j_step < self.size:
-                    valid = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
-                    if valid and code == "check":
-                        return True
-                    elif valid and code == "change":
-                        self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
-            except:
-                pass
-
+        assert color in [BLACK, WHITE]
+        letter, col = position
+        assert letter in self.alphabet[:self.size]
+        j = int(col)
+        assert 1 <= j <= self.size
+        i = self.alphabet.index(letter) + 1
+        for item in self.directions:
+            i_step,j_step = item
+            valid,end = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
+            if valid and end:
+                self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
 
     def start_reverse(self,i,j,i_step,j_step,color):
-        if color == WHITE:
-            optcolor = BLACK
-        else:
-            optcolor = WHITE
-        point = self.index2point(i,j)
+
+        assert color in [BLACK, WHITE]
+        point = i * (self.size+2) + j
         if self.board[point] == color:
             return
         self.board[point] = color
-        self.changedPoints[point] = optcolor
         self.start_reverse(i+i_step, j+j_step, i_step, j_step, color)
 
-
-    def getMark(self, color):
-        mark = 0
-        for point in self.board:
-            if point == color:
-                mark += 1
-        return mark
-
-    def isEnd(self):
-        if len(self.getAllLegalMoves(BLACK)) == 0 and len(self.getAllLegalMoves(WHITE)) == 0:
-            return True
-        else:
-            return False
-
-
-    def getWinner(self):
-        if self.isEnd():
-            blackMark = self.getMark(BLACK)
-            whiteMark = self.getMark(WHITE)
-            if blackMark > whiteMark:
-                return BLACK
-            elif blackMark == whiteMark:
-                return 'tie'
-            else:
-                return WHITE
-
-        return None
 
     def change_current_player(self):
 
         self.currentPlayer = BLACK if self.currentPlayer == WHITE else WHITE
-    
+
     def getOptColor(self, color):
-        if color == BLACK:
-            return WHITE
-        if color == WHITE:
+
+        return WHITE if color == BLACK else BLACK
+
+    def isEnd(self):
+
+        return self.pass2 == 2
+
+    def getWinner(self):
+
+        blackScore = self.getScore(BLACK)
+        whiteScore = self.getScore(WHITE)
+        if blackScore > whiteScore:
             return BLACK
+        elif blackScore == whiteScore:
+            return 'Tie'
+        else:
+            return WHITE
 
-def finalHeuristic(self, color):
-    total = 0
-    board2d = self.board.boardTo2d(self.board)
-    self.board.showBoard()
-    
-    for i in range(self.board.size):
-        for j in range(self.board.size):
-            if board2d[i][j] == color:
-                total += self.weight[i][j]
-    return total
 
-#When the user clicks, if it's a valid move, make the move
-def clickHandle(event):
-    global depth
-    xMouse = event.x
-    yMouse = event.y
-
-    cell_height = 500 / 8
-    cell_width = 500 / 8
-    if running:
-        if board.currentPlayer==BLACK:
-            pointx = event.x
-            pointy = event.y
-            print(pointy, pointx)
-            y = int(pointy // cell_height)
-            if y == 8:
-                y -= 1
-            x = int(pointx // cell_width)
-            if x == 8:
-                x -= 1
-            print(y ,x)
-            moves = board.getAllLegalMoves(BLACK)
-            
-            for m in moves:
-                row=int(board.point2position(m)[0])
-                col=int(board.point2position(m)[1])
-                print(y,row,'|||',x,col)
-                if(y==row and col == x):
-                    print(m)
-                    board.makeMove(BLACK,m)
-    else:
-    	playGame()
 
 def keyHandle(event):
     symbol = event.keysym
@@ -391,7 +343,7 @@ def runGame():
     #Title and shadow
     screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#262525")
     screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#000000")
-    
+
     screen.create_rectangle(25+155*1, 300, 155+155*1, 350, fill="#fff", outline="#111")
     screen.create_text(25+1*44+155*1.14,325,text="start", font=("Consolas",25),fill="#aaa")
     screen.update()
@@ -415,9 +367,41 @@ def playGame():
     drawGridBackground()
     #Create the board and update it
     board = ReversiBoard(8)
-    alphabeta = AlphaBetaGenMove(board)
+    alphabeta = AlphaBeta(board)
     board.initBoard()
     board.update()         
+
+#When the user clicks, if it's a valid move, make the move
+def clickHandle(event):
+    global depth
+    xMouse = event.x
+    yMouse = event.y
+
+    cell_height = 500 / 8
+    cell_width = 500 / 8
+    if running:
+        if board.currentPlayer==BLACK:
+            pointx = event.x
+            pointy = event.y
+            print(pointy, pointx)
+            y = int(pointy // cell_height)
+            if y == 8:
+                y -= 1
+            x = int(pointx // cell_width)
+            if x == 8:
+                x -= 1
+            print(y ,x)
+            moves = board.getLegalMoves(BLACK)
+            
+            for m in moves:
+                col=int(board.point2position(m)[1])-1
+                row=board.alpha2Row(board.point2position(m)[0])
+                print(y,row,'|||',x,col)
+                if(y==row and col == x):
+                    print(m)
+                    board.makeMove(BLACK,m)
+    else:
+        playGame()
 
 runGame()
 
