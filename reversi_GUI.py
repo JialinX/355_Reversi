@@ -54,7 +54,7 @@ def playGame():
     board = ReversiBoard(8)
     alphabeta = AlphaBeta(board)
     board.initBoard()
-    board.update(screen,alphabeta)         
+    board.update(screen,alphabeta,None)         
 
 #When the user clicks, if it's a valid move, make the move
 def clickHandle(event):
@@ -81,7 +81,7 @@ def clickHandle(event):
                 row=board.alpha2Row(board.point2position(m)[0])
                 if(y==row and col == x):
                     print(row,col)
-                    board.makeMove(BLACK,m,screen,alphabeta)
+                    board.makeMove(BLACK,m,screen,alphabeta,m)
     else:
         playGame()
 

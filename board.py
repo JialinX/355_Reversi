@@ -33,7 +33,7 @@ class ReversiBoard:
     def alpha2Row(self, alpha):
         return "abcdefgh".index(alpha)
     
-    def update(self, screen, alphabeta):
+    def update(self, screen, alphabeta,recentDot):
         screen.delete("greenDot")
         screen.delete("tile")    
         screen.delete("notification") 
@@ -55,7 +55,17 @@ class ReversiBoard:
                         (col + 1) * cell_width,
                         (row + 1) * cell_height,
                         tags="tile",
-                        fill = "#000000")    
+                        fill = "#000000")  
+        if(recentDot):
+            col=int(self.point2position(recentDot)[1])-1
+            row=self.alpha2Row(self.point2position(recentDot)[0])
+            screen.delete("redDot")     
+            screen.create_oval(col * cell_width+25,
+                    row * cell_height+25,
+                    (col + 1) * cell_width-25,
+                    (row + 1) * cell_height-25,
+                    tags="redDot",
+                    fill = "red") 
         screen.update()
 
         if(self.player == BLACK):
@@ -116,18 +126,13 @@ class ReversiBoard:
                     value, move = alphabeta.genMove(WHITE)
                     #self.pass2 = 0
                     
-                    self.makeMove(WHITE,move, screen,alphabeta)
+                    # screen.update()
+                    recentDot = move
+                    self.makeMove(WHITE,move, screen,alphabeta,recentDot)
                     
-                    col=int(self.point2position(move)[1])-1
-                    row=self.alpha2Row(self.point2position(move)[0])
-            
-                    screen.delete("redDot")                    
-                    screen.create_oval(col * cell_width+25,
-                            row * cell_height+25,
-                            (col + 1) * cell_width-25,
-                            (row + 1) * cell_height-25,
-                            tags="redDot",
-                            fill = "red")
+                    
+                                   
+                    
                     screen.delete("notification") 
                     screen.create_text(170,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
                     screen.update()
@@ -136,12 +141,6 @@ class ReversiBoard:
         if self.noMovesForBoth():
             screen.delete("notification") 
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
-        #wmoves = self.getLegalMoves(WHITE)
-        #bmoves = self.getLegalMoves(BLACK)
-        #if wmoves == bmoves == 0:
-            #screen.delete("notification") 
-            #screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
-
     def drawScoreBoard(self,screen):
         global moves
         #Deleting prior score elements
@@ -300,7 +299,7 @@ class ReversiBoard:
         self.reverse_color(position,color)
         self.change_current_player()
     
-    def makeMove(self, color, point, screen,alphabeta):
+    def makeMove(self, color, point, screen,alphabeta,recentDot):
         assert self.minpoint <= point <= self.maxpoint
         assert color in [BLACK, WHITE]
         position = self.point2position(point)
@@ -315,7 +314,7 @@ class ReversiBoard:
         position = self.point2position(point)
         self.reverse_color(position,color)
         self.player = BLACK if self.player == WHITE else WHITE
-        self.update(screen,alphabeta)
+        self.update(screen,alphabeta,recentDot)
         
 
     def undo(self):
