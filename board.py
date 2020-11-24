@@ -48,9 +48,9 @@ class ReversiBoard:
             return 7
     
     def update(self, screen, alphabeta):
-        print('inside update')
         screen.delete("highlight")
         screen.delete("tile")    
+        screen.delete("notification") 
         board2d = self.get_twoD_board()
         cell_height = 500 / 8
         cell_width = 500 / 8
@@ -74,15 +74,14 @@ class ReversiBoard:
 
         if(self.player == BLACK):
             moves = self.getLegalMoves(self.player)
-            
-                
+            print("legal",len(moves))
             for m in moves:
                 col=int(self.point2position(m)[1])-1
                 row=self.alpha2Row(self.point2position(m)[0])
                 screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="#008000",tags="highlight")
                 
-            if len(moves) ==0:
-                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass")
+            if len(moves) ==0 and not self.isEnd():
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass",tags = "notification")
                 self.player = BLACK if self.player == WHITE else WHITE   
                 self.pass2 +=1
             else:
@@ -95,20 +94,16 @@ class ReversiBoard:
             screen.update()
             
             if self.player==WHITE:
-                value, move = alphabeta.genMove(WHITE)
-                
-                if move == None :
-                    screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass")
-                    self.player = BLACK if self.player == WHITE else WHITE   
+                moves = self.getLegalMoves(self.player)
+                if len(moves) ==0 and not self.isEnd():
                     self.pass2 +=1
-                    if self.isEnd():
-                        screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
-                        
-                else:
+                    self.player = BLACK if self.player == WHITE else WHITE   
+                else: 
+                    value, move = alphabeta.genMove(WHITE)
                     self.pass2 = 0
                     
                     self.makeMove(WHITE,move, screen,alphabeta)
-                    print("recommand",self.point2position(move),value)
+                    
                     col=int(self.point2position(move)[1])-1
                     row=self.alpha2Row(self.point2position(move)[0])
             
@@ -119,8 +114,10 @@ class ReversiBoard:
                             (row + 1) * cell_height-25,
                             tags="recent",
                             fill = "#ff0000") 
-                    screen.update()   
-        else:
+                    screen.update()
+
+        if self.isEnd():
+            screen.delete("notification") 
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
     def drawScoreBoard(self,screen):
@@ -142,8 +139,8 @@ class ReversiBoard:
         screen.create_oval(380,540,400,560,fill=computer_colour,outline=computer_colour)
 
         #Pushing text to screen
-        screen.create_text(30,550,anchor="w", tags="score",font=("Consolas", 50),fill="white",text=player_score)
-        screen.create_text(400,550,anchor="w", tags="score",font=("Consolas", 50),fill="black",text=computer_score)
+        screen.create_text(30,550,anchor="w", tags="score",font=("Consolas", 50),fill="black",text=player_score)
+        screen.create_text(400,550,anchor="w", tags="score",font=("Consolas", 50),fill="white",text=computer_score)
 
         moves = player_score+computer_score
     
@@ -283,7 +280,6 @@ class ReversiBoard:
         self.change_current_player()
     
     def makeMove(self, color, point, screen,alphabeta):
-        print("inside make move")
         assert self.minpoint <= point <= self.maxpoint
         assert color in [BLACK, WHITE]
         position = self.point2position(point)
