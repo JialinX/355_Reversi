@@ -119,17 +119,18 @@ class ReversiBoard():
         self.oldboard = deepcopy(self.board)
 
     def showBoard(self):
-        colString = "   " + " ".join([str(i).center(3) for i  in range(1,self.size+1)])
+        colString = " " + "".join([str(i).center(3) for i  in range(1,self.size+1)])
         alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        board2d = self.boardTo2d(self.board)
-        sep  = f"  +{'-' * (3*self.size + self.size-1)}+"
+        board2d = self.boardTo2d()
+        #sep  = f"  +{'-' * (3*self.size + self.size-1)}+"
         print(colString)
-        print(sep)
+        #print(sep)
         for row in range(self.size):
             strRow = [str(i).center(3) for i in board2d[row]]
-            rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
+            #rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
+            rowString =  str(alphabet[row]) + "".join(strRow)
             print(rowString)
-            print(sep)
+            #print(sep)
         
     def boardTo2d(self,board):
         board2d = [[0 for i in range(self.size)] for j in range(self.size)]
@@ -141,6 +142,7 @@ class ReversiBoard():
 
     def printMenu(self):
         print('  h            help menu')
+        print('  b            board')
         print('  x a2         play x at a2')
         print('  o g3         play o at g3')
         print('  . e3         erase e3')
@@ -181,6 +183,7 @@ class ReversiBoard():
                 return self.history[state]
         return False
 
+   
     def position2point(self, position):
         letter, col = position
         col = int(col)
@@ -198,10 +201,15 @@ class ReversiBoard():
 
         return point// self.size,point % self.size
     
+    def point2LetterPosition(self,point):
+        alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        
+        return alphabet[point//self.size]+str(point % self.size+1)  
+    
     def getAllLegalMoves(self, color):
         legalMove = []
         for point in range(len(self.board)):
-            if self.board[point] == EMPTY: # to be changed to all adjcent cells instead of empty cells
+            if self.board[point] == EMPTY:
                 position = self.point2position(point)
                 if self.reverseColor(position, color, "check"):
                     legalMove.append(point)

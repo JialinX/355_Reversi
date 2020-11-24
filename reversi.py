@@ -16,8 +16,12 @@ class AlphaBetaGenMove:
 
     def getHeuristicWeight(self, color):
         total = 0
+<<<<<<< HEAD
         board2d = self.board.boardTo2d(self.board.board)
         #self.board.showBoard()
+=======
+        board2d = self.board.boardTo2d()
+>>>>>>> da460cd79e2215c1941f88bd3ec557732f115daf
         
         for i in range(self.board.size):
             for j in range(self.board.size):
@@ -35,11 +39,11 @@ class AlphaBetaGenMove:
         # beta:  best already explored option along path to the root for the minimizer
         best = -9999
         moves = self.board.getAllLegalMoves(color)
+        if not moves:
+            return (0, None)
         bestMove = moves[0]
         optColor = self.board.getOptColor(color)
-        # self.board.play(color, moves[0])
-        # self.board.undo()
-        # print(color, optColor)
+ 
         for move in moves:
             self.board.play(color, move)
             #if this state is visited before 
@@ -63,11 +67,9 @@ class AlphaBetaGenMove:
             return self.getHeuristicWeight(originalColor)
     
         moves = self.board.getAllLegalMoves(color)
-
+        
         for move in moves:
-            #self.board.showBoard()
             self.board.play(color, move)
-            #self.board.showBoard()
             value = self.board.getHistory()
             if value == False:
                 value = self.max_alphabeta(optColor, originalColor, depth+1, alpha, beta)
@@ -75,7 +77,6 @@ class AlphaBetaGenMove:
                 
             self.board.undo()
            
-            #self.board.showBoard()
             if value < localMin:
                 localMin = value
     
@@ -96,16 +97,13 @@ class AlphaBetaGenMove:
         moves = self.board.getAllLegalMoves(color)
         
         for move in moves:
-            #self.board.showBoard()
-            self.board.play(color, move)         
-            #self.board.showBoard()
+            self.board.play(color, move)     
             value = self.board.getHistory()
             if value == False:                
                 value  = self.min_alphabeta(optColor, originalColor, depth+1, alpha, beta)
                 self.board.addHistory(value)
             
             self.board.undo()
-            #self.board.showBoard()
             if value > localMax:
                 localMax = value
     
