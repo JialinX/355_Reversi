@@ -7,7 +7,8 @@ from reversi import AlphaBetaGenMove
 BLACK = 'x' # player black
 WHITE = 'o' # player white
 EMPTY = '.'
-
+#UI is from
+#https://github.com/JialinX/355_Reversi/blob/main/board.py
 #Tkinter setup
 root = Tk()
 screen = Canvas(root, width=500, height=600, background="#222",highlightthickness=0)
@@ -442,18 +443,8 @@ def runGame():
     screen.create_text(250,203,anchor="c",text="Othello",font=("Consolas", 50),fill="#aaa")
     screen.create_text(250,200,anchor="c",text="Othello",font=("Consolas", 50),fill="#fff")
     
-    #Creating the difficulty buttons
-    for i in range(3):
-        #Background
-        screen.create_rectangle(25+155*i, 310, 155+155*i, 355, fill="#000", outline="#000")
-        screen.create_rectangle(25+155*i, 300, 155+155*i, 350, fill="#111", outline="#111")
-
-        spacing = 130/(i+2)
-        for x in range(i+1):
-            #Star with double shadow
-            screen.create_text(25+(x+1)*spacing+155*i,326,anchor="c",text="\u2605", font=("Consolas", 25),fill="#b29600")
-            screen.create_text(25+(x+1)*spacing+155*i,327,anchor="c",text="\u2605", font=("Consolas",25),fill="#b29600")
-            screen.create_text(25+(x+1)*spacing+155*i,325,anchor="c",text="\u2605", font=("Consolas", 25),fill="#ffd700")
+    screen.create_rectangle(25+155*1, 300, 155+155*1, 350, fill="#fff", outline="#111")
+    screen.create_text(25+1*44+155*1.14,325,text="start", font=("Consolas",25),fill="#aaa")
     screen.update()
 
 def drawGridBackground(outline=False):
