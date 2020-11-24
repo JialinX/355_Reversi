@@ -50,7 +50,7 @@ class ReversiBoard:
     def update(self, screen, alphabeta):
         print('inside update')
         screen.delete("highlight")
-        screen.delete("tile")
+        screen.delete("tile")    
         board2d = self.get_twoD_board()
         cell_height = 500 / 8
         cell_width = 500 / 8
@@ -74,26 +74,37 @@ class ReversiBoard:
 
         if(self.player == BLACK):
             moves = self.getLegalMoves(self.player)
+            
+                
             for m in moves:
                 col=int(self.point2position(m)[1])-1
                 row=self.alpha2Row(self.point2position(m)[0])
                 screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="#008000",tags="highlight")
+                
+            if len(moves) ==0:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass")
+                self.player = BLACK if self.player == WHITE else WHITE   
+                #.pass +=1
+                
             screen.update()
         
         if not self.isEnd():
             self.drawScoreBoard(screen)
             screen.update()
+            
             if self.player==WHITE:
                 value, move = alphabeta.genMove(WHITE)
                 self.makeMove(WHITE,move, screen,alphabeta)
                 print("recommand",self.point2position(move),value)
                 col=int(self.point2position(move)[1])-1
                 row=self.alpha2Row(self.point2position(move)[0])
+        
+                screen.delete("recent")                    
                 screen.create_oval(col * cell_width,
                         row * cell_height,
                         (col + 1) * cell_width,
                         (row + 1) * cell_height,
-                        tags="tile",
+                        tags="recent",
                         fill = "#ff0000") 
                 screen.update()   
         else:

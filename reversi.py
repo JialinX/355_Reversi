@@ -25,7 +25,8 @@ class AlphaBeta:
         return self.alphabeta(color, 1)
 
     def alphabeta(self, color, depth):
-
+        import time
+        #time.sleep(3)
         best = -9999
         moves = self.board.getLegalMoves(color)
         if len(moves) == 0:
