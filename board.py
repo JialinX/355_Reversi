@@ -121,6 +121,11 @@ class ReversiBoard:
         if self.isEnd():
             screen.delete("notification") 
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
+        wmoves = self.getLegalMoves(WHITE)
+        bmoves = self.getLegalMoves(BLACK)
+        if wmoves == bmoves == 0:
+            screen.delete("notification") 
+            screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
     def drawScoreBoard(self,screen):
         global moves
