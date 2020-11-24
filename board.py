@@ -84,7 +84,9 @@ class ReversiBoard:
             if len(moves) ==0:
                 screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass")
                 self.player = BLACK if self.player == WHITE else WHITE   
-                #.pass +=1
+                self.pass2 +=1
+            else:
+                self.pass2 = 0
                 
             screen.update()
         
@@ -94,19 +96,30 @@ class ReversiBoard:
             
             if self.player==WHITE:
                 value, move = alphabeta.genMove(WHITE)
-                self.makeMove(WHITE,move, screen,alphabeta)
-                print("recommand",self.point2position(move),value)
-                col=int(self.point2position(move)[1])-1
-                row=self.alpha2Row(self.point2position(move)[0])
-        
-                screen.delete("recent")                    
-                screen.create_oval(col * cell_width,
-                        row * cell_height,
-                        (col + 1) * cell_width,
-                        (row + 1) * cell_height,
-                        tags="recent",
-                        fill = "#ff0000") 
-                screen.update()   
+                
+                if move == None :
+                    screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass")
+                    self.player = BLACK if self.player == WHITE else WHITE   
+                    self.pass2 +=1
+                    if self.isEnd():
+                        screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
+                        
+                else:
+                    self.pass2 = 0
+                    
+                    self.makeMove(WHITE,move, screen,alphabeta)
+                    print("recommand",self.point2position(move),value)
+                    col=int(self.point2position(move)[1])-1
+                    row=self.alpha2Row(self.point2position(move)[0])
+            
+                    screen.delete("recent")                    
+                    screen.create_oval(col * cell_width+25,
+                            row * cell_height+25,
+                            (col + 1) * cell_width-25,
+                            (row + 1) * cell_height-25,
+                            tags="recent",
+                            fill = "#ff0000") 
+                    screen.update()   
         else:
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
