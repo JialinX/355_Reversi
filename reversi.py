@@ -16,7 +16,7 @@ class AlphaBetaGenMove:
 
     def getHeuristicWeight(self, color):
         total = 0
-        board2d = self.board.boardTo2d()
+        board2d = self.board.boardTo2d(self.board)
         self.board.showBoard()
         
         for i in range(self.board.size):

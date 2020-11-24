@@ -61,23 +61,25 @@ def dealCommand(userInput, board, alphabeta):
     command = userInput.split()[0]
     if command =='h':
         board.printMenu()
-    # elif command =='x': #user play first
-    #     position  = board.position2point(userInput.split()[1])
-    #     #value, move = alphabeta.genMove(color)
-    #     if position in board.getAllLegalMoves(BLACK):
-    #         board.play(BLACK, position)
-    #     else:
-    #         print("invalid position for", BLACK)
-
-    # elif command =='o':#computer play first
-    #     #print('here')
-    #     position  = board.position2point(userInput.split()[1])
-    #     #value, move = alphabeta.genMove(color)
-    #     if position in board.getAllLegalMoves(WHITE):
-    #         board.play(WHITE, move)
-    #     else:
-    #         print("invalid position for", WHITE)
-            
+    elif command =='x': #user play first
+        position  = board.position2point(userInput.split()[1])
+        #value, move = alphabeta.genMove(color)
+        if position in board.getAllLegalMoves(BLACK):
+            board.play(BLACK, position)
+        else:
+            print("invalid position for", BLACK)
+        value, move = alphabeta.genMove(WHITE)
+        board.play(WHITE, move)
+    elif command =='o':#computer play first
+        #print('here')
+        position  = board.position2point(userInput.split()[1])
+        #value, move = alphabeta.genMove(color)
+        if position in board.getAllLegalMoves(WHITE):
+            board.play(WHITE, move)
+        else:
+            print("invalid position for", WHITE)
+        value, move = alphabeta.genMove(BLACK)
+        board.play(BLACK, move)
     elif command =='.':
         pass
     elif command =='g':
