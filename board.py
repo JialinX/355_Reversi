@@ -113,8 +113,10 @@ class ReversiBoard:
                             (col + 1) * cell_width-25,
                             (row + 1) * cell_height-25,
                             tags="recent",
-                            fill = "#ff0000") 
+                            fill = "#ff0000")
+                    screen.create_text(220,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
                     screen.update()
+
 
         if self.isEnd():
             screen.delete("notification") 
