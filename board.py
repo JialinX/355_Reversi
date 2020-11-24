@@ -67,7 +67,15 @@ class ReversiBoard:
                 screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="highlight")
                 
             if len(moves) ==0 and not self.isEnd():
-                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves. You have to pass",tags = "notification")
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves.",tags = "notification")
+                screen.delete("notification") 
+                sleep(3)
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have to pass.",tags = "notification")
+                screen.delete("notification") 
+                sleep(1)
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer will do the next move.",tags = "notification")
+                screen.delete("notification") 
+                sleep(1)
                 self.player = BLACK if self.player == WHITE else WHITE   
                 self.pass2 +=1
             else:
@@ -82,6 +90,7 @@ class ReversiBoard:
             
             
             if self.player==WHITE:
+                sleep(0.5)
                 moves = self.getLegalMoves(self.player)
                 if len(moves) ==0 and not self.isEnd():
                     self.pass2 +=1
