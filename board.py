@@ -33,7 +33,6 @@ class ReversiBoard():
                 '.', '.', '.', '.', '.', '.', '.', '.',
                 '.', '.', '.', '.', '.', '.', '.', '.'])
         self.oldboard = [EMPTY]*(self.size*self.size)
-        self.newboard = [EMPTY]*(self.size*self.size)
 
     def update(self):
         print('update')
@@ -41,16 +40,16 @@ class ReversiBoard():
         screen.delete("tile")
         board2d = self.boardTo2d(self.board)
         oldboard2d = self.boardTo2d(self.oldboard)
-        print(board2d)
-        print(oldboard2d)
+        # print(board2d)
+        # print(oldboard2d)
         for x in range(8):
             for y in range(8):
                 #Could replace the circles with images later, if I want
-                if oldboard2d[x][y]=="o":
+                if oldboard2d[y][x]=="o":
                     screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#aaa",outline="#aaa")
                     screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#fff",outline="#fff")
 
-                elif oldboard2d[x][y]=="x":
+                elif oldboard2d[y][x]=="x":
                     screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#000",outline="#000")
                     screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#111",outline="#111")
         #Animation of new tiles
@@ -58,69 +57,66 @@ class ReversiBoard():
         for x in range(8):
             for y in range(8):
                 #Could replace the circles with images later, if I want
-                if board2d[x][y]!=oldboard2d[x][y] and board2d[x][y]=="o":
-                    screen.delete("{0}-{1}".format(y,x))
+                if board2d[y][x]!=oldboard2d[y][x] and board2d[y][x]=="o":
+                    screen.delete("{0}-{1}".format(x,y))
                     #42 is width of tile so 21 is half of that
                     #Shrinking
                     for i in range(21):
-                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#000",outline="#000") #black
-                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#111",outline="#111")
+                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
+                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
                     #Growing
                     for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#aaa",outline="#aaa") #grey
-                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#fff",outline="#fff") #white
+                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
+                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
-                    screen.create_oval(54+50*y,54+50*x,96+50*y,96+50*x,tags="tile",fill="#aaa",outline="#aaa")
-                    screen.create_oval(54+50*y,52+50*x,96+50*y,94+50*x,tags="tile",fill="#fff",outline="#fff")
+                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#aaa",outline="#aaa")
+                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#fff",outline="#fff")
                     screen.update()
 
-                elif board2d[x][y]!=oldboard2d[x][y] and board2d[x][y]=="x":
-                    screen.delete("{0}-{1}".format(y,x))
+                elif board2d[y][x]!=oldboard2d[y][x] and board2d[y][x]=="x":
+                    screen.delete("{0}-{1}".format(x,y))
                     #42 is width of tile so 21 is half of that
                     #Shrinking
                     for i in range(21):
-                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#fff",outline="#fff")
+                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
+                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
                     #Growing
                     for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*y,54+i+50*x,96-i+50*y,96-i+50*x,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*y,52+i+50*x,96-i+50*y,94-i+50*x,tags="tile animated",fill="#111",outline="#111")
+                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
+                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
                         if i%3==0:
                             sleep(0.01)
                         screen.update()
                         screen.delete("animated")
 
-                    screen.create_oval(54+50*y,54+50*x,96+50*y,96+50*x,tags="tile",fill="#000",outline="#000")
-                    screen.create_oval(54+50*y,52+50*x,96+50*y,94+50*x,tags="tile",fill="#111",outline="#111")
+                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#000",outline="#000")
+                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#111",outline="#111")
                     screen.update()
-        
-        moves = self.getAllLegalMoves(BLACK)
+        print(self.currentPlayer)
+        moves = self.getAllLegalMoves(self.currentPlayer)
         for m in moves:
-            x=int(self.point2position(m)[0])
-            y=int(self.point2position(m)[1])
-            screen.create_oval(68+50*y,68+50*x,32+50*(y+1),32+50*(x+1),tags="highlight",fill="#008000",outline="#008000")
+            x=int(self.point2position(m)[1])
+            y=int(self.point2position(m)[0])
+            screen.create_oval(68+50*x,68+50*y,32+50*(x+1),32+50*(y+1),tags="highlight",fill="#008000",outline="#008000")
         
         if not self.isEnd():
             #Draw the scoreboard and update the screen
-            self.drawScoreBoard()
-            screen.update()
-            #If the computer is AI, make a move
-            print(self.currentPlayer)
+            # self.drawScoreBoard()
+            # screen.update()
             if self.currentPlayer==WHITE:
                 value, move = alphabeta.genMove(WHITE)
-                print(value,move)
-                self.makeMove(move)
+                self.makeMove(WHITE,move)
         else:
             screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
 
@@ -162,7 +158,6 @@ class ReversiBoard():
         self.board[self.index2point(mid,mid-1)] = BLACK
         self.board[self.index2point(mid-1,mid)] = BLACK
         self.oldboard = deepcopy(self.board)
-        self.newboard = deepcopy(self.board)
 
     def showBoard(self):
         colString = "   " + " ".join([str(i).center(3) for i  in range(1,self.size+1)])
@@ -269,20 +264,19 @@ class ReversiBoard():
         self.boardHistory.append(deepcopy(self.board))
 
     def makeMove(self, color, point):
-        print(color,point)
         self.oldboard = deepcopy(self.board)
+        self.showBoard()
         if self.board[point] == EMPTY:
             self.board[point] = color
-        self.newboard = deepcopy(self.board)
         position = self.point2position(point)
         self.reverseColor(position, color,"change")
         self.change_current_player()
+        self.boardHistory.append(deepcopy(self.board))
         self.showBoard()
         self.update()
-        self.boardHistory.append(deepcopy(self.board))
+        
         
     def undo(self):
-        self.oldboard = deepcopy(self.board)
         self.boardHistory.pop()
         self.board = deepcopy(self.boardHistory[-1])
         
