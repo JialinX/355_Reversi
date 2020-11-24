@@ -25,26 +25,24 @@ def main():
         #    move = input("Invalid move, please enter the move again: ")
         #    valid, _ = board.isPositionValid(move, humanColor)
         moves = board.getLegalMoves(humanColor)
-        if not moves:
-        	board.pass2 += 1
-        	if board.pass2 == 2:
-        		break
+        if not moves and board.pass2 == 1:
         	break
-        else:
+        elif not moves and board.pass2 == 0:
+        	board.pass2 += 1
+        elif len(moves) > 0:
         	board.pass2 = 0
-        move = board.genMove(humanColor)
-        board.playMove(move,humanColor)
-        board.showBoard()
+	        move = board.genMove(humanColor)
+	        board.playMove(move,humanColor)
+        	board.showBoard()
         _, comMove = alphabeta.genMove(board.computerColor)
-        if comMove:
-        	board.pass2 = 0
+       	if not comMove and board.pass2 == 1:
+       		break
+       	elif not comMove and board.pass2 == 0:
+       		board.pass2 += 1
+       	elif comMove != None:
+       		board.pass2 = 0
         	print("computer make move", board.point2position(comMove))
         	board.playMove(comMove,board.computerColor)
-        else:
-        	board.pass2 += 1
-        	if board.pass2 == 2:
-        		break
-        	break
 
     board.showBoard()
     winner = board.getWinner()
