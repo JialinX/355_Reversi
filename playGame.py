@@ -31,6 +31,12 @@ TODO:
     #chars ='bw' 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 def showLegalMove(board, color):
+    """
+    showLegalMove. To show legal moves for the current player
+    :param board: list. Indicate current board state
+    :param color: str. Indicate current player's color
+    :return: boolean or str. Ture if no legal move found, otherwise a string of all legal moves
+    """
     moves = board.getAllLegalMoves(color)
     if len(moves) == 0:
         print("You have no legal move!")
@@ -43,6 +49,10 @@ def showLegalMove(board, color):
         
 
 def getUserColor():
+    """
+    getUserColor. To obtain player's color
+    :return: str. Indicate player's chosen color
+    """
     print("Do you wanna play against computer? (y/n)")
     print("If y(es), computer will play with you")
     print("If n(o), the board is just for testing or pvp use")
@@ -63,6 +73,11 @@ def getUserColor():
         return getUserColor()
     
 def showResult(board):
+    """
+    showResult. To show the winner player and its score
+    :param board: list. Indicate current board state
+    :return: none
+    """
     winner = board.getWinner()
     if winner == "tie":
         "The game ties"
@@ -70,6 +85,16 @@ def showResult(board):
         print("The winner is:", winner, "with score of", board.getMark(winner))
 
 def playCommand(board, position, alphabeta, commandColor, userColor, computerColor):
+    """
+    playCommand. To present the instructions to player
+    :param board: list. Indicate current board state
+    :param position: int. Indicate the index number of the given position
+    :param alphabeta: class. Indicate alphabeta class
+    :param commandColor: str. Indicate the player's color
+    :param userColor: str. Indicate the player's color
+    :param computerColor: str. Indicate the computer's color
+    :return: none
+    """
 
     moves = board.getAllLegalMoves(commandColor)
     if commandColor == computerColor:
@@ -103,6 +128,15 @@ def playCommand(board, position, alphabeta, commandColor, userColor, computerCol
         print("\ncomputer plays at", board.point2LetterPosition(move),"\n")        
         
 def dealCommand(userInput, board, alphabeta, userColor, computerColor):
+    """
+    dealCommand. To present the corresponding commend from the player
+    :param userInput: str. Indicate player's input
+    :param board: list. Indicate current board state
+    :param alphabeta: class. Indicate alphabeta class
+    :param userColor: str. Indicate the player's color
+    :param computerColor: str. Indicate the computer's color
+    :return: none
+    """
     commandLen = len(userInput.split())
 
     command = userInput.split()[0]
