@@ -6,12 +6,19 @@ EMPTY = '.'
 BORDER = '#'
 
 def printResult(board):
-
+    """
+    printResult. Print the result of a given board state
+    :return: none
+    """
     print(f"The game winner is {board.getWinner()}")
     print(f"{BLACK} has score {board.getScore(BLACK)}")
     print(f"{WHITE} has score {board.getScore(WHITE)}")
 
 def printMenu():
+    """
+    printMenu. Print the instruction menue 
+    :return: none 
+    """
     print('  h            help menu')
     print('  b            board')
     print('  x a2         play x at a2')
@@ -22,7 +29,12 @@ def printMenu():
     print('  u            undo')
 
 def computerPlay(board, alphabeta, computerColor):
-
+    """
+    computerPlay. To check if there is any legal move for computer
+    :param board: list. Indicate current board state
+    :param alphabeta: class. Indicate alphabeta class
+    :param computerColor: str. Indicate the computer's color
+    """
     _, move = alphabeta.genMove(computerColor)
     if move is None:
         board.pass2 += 1
@@ -38,7 +50,16 @@ def computerPlay(board, alphabeta, computerColor):
     return True
 
 def playCommand(board, point, alphabeta, color, humanColor, computerColor):
-
+    """
+    playCommand. To present the instructions to player
+    :param board: list. Indicate current board state
+    :param point: int. Indicate the index number of the given position
+    :param alphabeta: class. Indicate alphabeta class
+    :param color: str. Indicate the player's color
+    :param humanColor: str. Indicate the player's color
+    :param computerColor: str. Indicate the computer's color
+    :return: none
+    """
     moves = board.getLegalMoves(color)
     if color == computerColor:
         print("You cannot play as computer's color")
@@ -67,7 +88,12 @@ def playCommand(board, point, alphabeta, color, humanColor, computerColor):
         
 
 def showLegalMove(board, color):
-
+    """
+    showLegalMove. To show legal moves for the current player
+    :param board: list. Indicate current board state
+    :param color: str. Indicate current player's color
+    :return: boolean or str. Ture if no legal move found, otherwise a string of all legal moves
+    """
     moves = board.getLegalMoves(color)
     if len(moves) == 0:
         print("You have no legal moves, enter 'p' to pass your turn")
@@ -78,7 +104,10 @@ def showLegalMove(board, color):
         return True
 
 def getHumanColor():
-
+    """
+    getHumanColor. To obtain player's color
+    :return: str. Indicate player's chosen color
+    """
     while True:
         print("Do you wanna play against computer? (y/n)")
         print("If y(es), computer will play with you")
@@ -102,7 +131,15 @@ def getHumanColor():
 
 
 def dealCommand(commands, board, alphabeta, humanColor, computerColor):
-
+    """
+    dealCommand. To present the corresponding commend from the player
+    :param commands: str. Indicate player's input
+    :param board: list. Indicate current board state
+    :param alphabeta: class. Indicate alphabeta class
+    :param humanColor: str. Indicate the player's color
+    :param computerColor: str. Indicate the computer's color
+    :return: none
+    """
     if commands[0] == 'h':
         printMenu()
 
