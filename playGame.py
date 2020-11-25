@@ -18,6 +18,7 @@ def printMenu():
     print('  o g3         play o at g3')
     print('  g x/o        genmove for x/o')
     print('  l x/o        show legal moves for x/o')
+    print('  p            pass your current turn')
     print('  u            undo')
 
 def computerPlay(board, alphabeta, computerColor):
