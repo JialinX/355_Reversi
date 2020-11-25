@@ -17,6 +17,10 @@ screen = Canvas(root, width=500, height=600, background="#e0e0e0",highlightthick
 screen.pack()
 
 def runGame():
+    """
+    runGame. To run the program
+    :return: none
+    """
     global running
     running = False
     #Title and shadow
@@ -27,6 +31,10 @@ def runGame():
     screen.update()
 
 def drawGridBackground():
+    """
+    drawGridBackground. To create the game board
+    :return: none
+    """
     cell_height = 500 / 8
     cell_width = 500 / 8
     # Draw the horizontal lines first
@@ -36,6 +44,10 @@ def drawGridBackground():
 
 
 def playGame():
+    """
+    playGame. To run the program
+    :return: none
+    """
     global board, running, alphabeta
     running = True
     screen.delete(ALL)
@@ -51,6 +63,11 @@ def playGame():
 
 #When the user clicks, if it's a valid move, make the move
 def clickHandle(event):
+    """
+    clickHandle. To make move according to instruction
+    :param event: event. Indicate the given instruction
+    :return: none
+    """
     global depth
     xMouse = event.x
     yMouse = event.y
