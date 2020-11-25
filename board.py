@@ -1,371 +1,378 @@
 import numpy as np
 from copy import deepcopy
+from time import *
+from reversi import AlphaBeta
+import random
+from enum import Enum
+
 BLACK = 'x' # player black
 WHITE = 'o' # player white
-EMPTY = '.'
+EMPTY = '.' # empty point
+BORDER = '#' # border point
+#UI is from
+#https://github.com/JialinX/355_Reversi/blob/main/board.py
+#Tkinter setup
 
+class ReversiBoard:
 
-class ReversiBoard():
-
-    def __init__(self, size):
-        """
-        __init__. To initialize class variables
-        :param size: int。 size of the board
-        """
+    def __init__(self,size):
         self.size = size
-        self.board = [EMPTY]*(self.size*self.size)
-        self.boardHistory = []
+        self.computerColor = None
+        self.humanColor = None
         self.currentPlayer = BLACK
+        self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        self.maxpoint = (self.size+2)*self.size + self.size
+        self.minpoint = self.size+3
+        self.NS = size + 2
+        self.pass2 = 0
         self.directions=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
-        self.changedPoints = {}
-        self.history = {}  
-        self.boardHistory.append([
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', 'o', 'x', '.', '.', '.',
-                '.', '.', '.', 'x', 'o', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.',
-                '.', '.', '.', '.', '.', '.', '.', '.'])    
-
-    def initBoard(self):
-        """
-        initBoard. To initialize the start position of the game board
-        """
-        mid = int(self.size/2)
-        self.board[self.index2point(mid,mid)] = WHITE
-        self.board[self.index2point(mid-1,mid-1)] = WHITE
-        self.board[self.index2point(mid,mid-1)] = BLACK
-        self.board[self.index2point(mid-1,mid)] = BLACK
-
-    def showBoard(self):
-        """
-        showBoard. To construct the structure of the board
-        :print: the constructed game board
-        """
-        colString = " " + "".join([str(i).center(3) for i  in range(1,self.size+1)])
-        alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        board2d = self.boardTo2d()
-        #sep  = f"  +{'-' * (3*self.size + self.size-1)}+"
-        print(colString)
-        #print(sep)
-        for row in range(self.size):
-            strRow = [str(i).center(3) for i in board2d[row]]
-            #rowString =  str(alphabet[row]) + " |" + "|".join(strRow) + "|"
-            rowString =  str(alphabet[row]) + "".join(strRow)
-            print(rowString)
-            #print(sep)
+        self.boardHistory = []
+        self.initBoard()
+        self.player = BLACK
         
-    def boardTo2d(self):
-        """
-        boardTo2d. Convert the constructed 3D board into 2D array
-        :return: a list contain the board information
-        """
-        board2d = [[0 for i in range(self.size)] for j in range(self.size)]
-        for row in range(self.size):
-            for col in range(self.size):
-                point = self.index2point(row,col)
-                board2d[row][col] = self.board[point]
-        return board2d
-
-    def printMenu(self):
-        """
-        printMenu. To print the information menu for the player
-
-        """
-        print('  h            help menu')
-        print('  b            board')
-        print('  x a2         play x at a2')
-        print('  o g3         play o at g3')
-        print('  . e3         erase e3')
-        print('  g x/o        genmove for x/o')
-        print('  l x/o        show legal moves for x/o')
-        print('  u            undo')
-
-    def board2string(self, state):
-        """
-        board2string. To convert board data to type str
-        :param state: array of lists. Indicate the current board state
-        :return: str board
-        """
-
-        boardString = ""
-        for ix,iy in np.ndindex(state.shape):
-            boardString += state[ix,iy]
-
-        return boardString
-
-    def getIso(self):
-        """
-        getIso. To obtain all the isomorphic board states of a specific board state
-        :return: list. Containing all the isomorphic strings of a given board state
-        """
-
-        npboard = np.array(self.board)
-        board2d = np.reshape(npboard, (-1, 2))
-        leftRightFlipBoard = np.fliplr(board2d)
-        upDownFlipBoard = np.flipud(board2d)
-        isoString = [self.board2string(board2d),self.board2string(np.rot90(board2d, 1)),
-                    self.board2string(np.rot90(board2d, 2)),self.board2string(np.rot90(board2d, 3)),
-                    self.board2string(upDownFlipBoard),self.board2string(leftRightFlipBoard),
-                    self.board2string(np.rot90(leftRightFlipBoard,1)),self.board2string(np.rot90(upDownFlipBoard,1))]
-
-        return isoString
-
-    def addHistory(self, score):
-        """
-        addHistory. To add Key/Value combination into history dictionary
-        :param score:int. Indicate the score received for a given board state
-        """
-        state = ''.join(self.board)
-        self.history[state] = score
-
-    def getHistory(self):
-        """
-        getHistory. To obtain the historical game states
-        :return: return the game history otherwise return False
-        """
-
-        boardIso = self.getIso()
-        for state in boardIso:
-            if state in self.history:
-                return self.history[state]
-        return False
-
-   
-    def position2point(self, position):
-        """
-        position2point. To obtain an index value for a position given its position code
-        :param position: list. Indicate a position code containing letter and column number
-        :return: int. Return an index of this position given its row and col numbers
-        """
-        letter, col = position
-        col = int(col)
-        col -= 1
-        alphabet = 'abcdefghijklmnopqrstuvwxyz'
-        row = alphabet.index(letter)
-
-        return self.index2point(row,col)
-
-    def index2point(self, row, col):
-        """
-        index2point. To obtain an index value for a position given its row and col numbers
-        :param row: int. Indicate row position
-        :param col: int. Indicate col position
-        :return: int. Return an index of this position given its row and col numbers
-        """
-
-        return (self.size) * row + col
-
-    def point2position(self,point):
-        """
-        point2position. To convert an index for a position to its row and col representation
-        :param point: int. Indicating this index number of the given position
-        :return: list. Containing the given index's row and col number
-        """
-
-        return point// self.size,point % self.size
+    def alpha2Row(self, alpha):
+        return "abcdefgh".index(alpha)
     
-    def point2LetterPosition(self,point):
-        """
-        point2LetterPosition. To convert an index for a position to its position code
-        containing letter and column number
-        :param point: int. Indicating the index number of the given position
-        :return: str. Containing letter and column number to represent the given position
-        """
-        alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    def update(self, screen, alphabeta,recentDot):
+        screen.delete("greenDot")
+        screen.delete("tile")    
+        screen.delete("notification") 
+        board2d = self.get_twoD_board()
+        cell_height = 500 / 8
+        cell_width = 500 / 8
+        for row in range(8):
+            for col in range(8):
+                if board2d[row][col]=="o":
+                    screen.create_oval(col * cell_width,
+                        row * cell_height,
+                        (col + 1) * cell_width,
+                        (row + 1) * cell_height,
+                        tags="tile",
+                        fill = "#ffffff")       
+                elif board2d[row][col]=="x":
+                    screen.create_oval(col * cell_width,
+                        row * cell_height,
+                        (col + 1) * cell_width,
+                        (row + 1) * cell_height,
+                        tags="tile",
+                        fill = "#000000")  
+        if(recentDot):
+            col=int(self.point2position(recentDot)[1])-1
+            row=self.alpha2Row(self.point2position(recentDot)[0])
+            screen.delete("redDot")     
+            screen.create_oval(col * cell_width+25,
+                    row * cell_height+25,
+                    (col + 1) * cell_width-25,
+                    (row + 1) * cell_height-25,
+                    tags="redDot",
+                    fill = "red") 
+        screen.update()
+
+        if(self.player == BLACK):
+            moves = self.getLegalMoves(self.player)
+            for m in moves:
+                col=int(self.point2position(m)[1])-1
+                row=self.alpha2Row(self.point2position(m)[0])
+                screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="greenDot")
+                
+            if len(moves) ==0 and not self.noMovesForBoth():
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have no legal moves.",tags = "notification")
+                screen.update()
+                sleep(3)
+                screen.delete("notification") 
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You have to pass.",tags = "notification")
+                screen.update()
+                sleep(1)
+                screen.delete("notification") 
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer will move.",tags = "notification")
+                screen.update()
+                sleep(1)
+                screen.delete("notification")
+                self.player = BLACK if self.player == WHITE else WHITE   
+
+                
+            #screen.update
         
-        return alphabet[point//self.size]+str(point % self.size+1)  
+        self.drawScoreBoard(screen)
+        screen.update()        
+        
+        if not self.noMovesForBoth():
+            
+            
+            if self.player==WHITE:
+                screen.create_text(350,510,anchor="c",font=("Consolas",15), text="Computer's Turn",tags = "notification") 
+                screen.update()
+                sleep(0.5)
+                moves = self.getLegalMoves(self.player)
+                screen.delete("notification") 
+                screen.update()
+                if len(moves) ==0 and not self.noMovesForBoth():
+                    #self.pass2 +=1
+                    self.player = BLACK if self.player == WHITE else WHITE   
+                    screen.delete("notification") 
+                    screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer passes",tags = "notification")
+                    screen.update()
+                    sleep(3)
+                    screen.delete("notification") 
+                    screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You will move.",tags = "notification")
+                    screen.update()                    
+                    
+                    for m in self.getLegalMoves(self.player):
+                        col=int(self.point2position(m)[1])-1
+                        row=self.alpha2Row(self.point2position(m)[0])
+                        screen.create_oval(col * (cell_width) + 15, row * (cell_height) + 15, (col + 1) * cell_width - 15 , (row + 1) * cell_height - 15,fill="green",tags="greenDot")                    
+                    
+                else: 
+                    value, move = alphabeta.genMove(WHITE)
+                    #self.pass2 = 0
+                    
+                    # screen.update()
+                    recentDot = move
+                    self.makeMove(WHITE,move, screen,alphabeta,recentDot)
+                    
+                    
+                                   
+                    
+                    screen.delete("notification") 
+                    screen.create_text(170,510,anchor="c",font=("Consolas",15), text="Your Turn",tags = "notification") 
+                    screen.update()
+
+
+        if self.noMovesForBoth():
+            screen.delete("notification") 
+            player_score = self.getScore(BLACK)
+            computer_score = self.getScore(WHITE)
+            if player_score > computer_score:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="You wins")
+            elif player_score < computer_score:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Computer wins")
+            elif player_score == computer_score:
+                screen.create_text(250,550,anchor="c",font=("Consolas",15), text="Tie")                
+            
+            
+    def drawScoreBoard(self,screen):
+        global moves
+        #Deleting prior score elements
+        screen.delete("score")
+        board2d = self.get_twoD_board()
+
+        player_score = self.getScore(BLACK)
+        computer_score = self.getScore(WHITE)
+
+        screen.create_oval(5,540,25,560,fill="black",outline="black")
+        screen.create_oval(380,540,400,560,fill="white",outline="white")
+
+        #Pushing text to screen
+        screen.create_text(30,550,anchor="w", tags="score",font=("Consolas", 50),fill="black",text=player_score)
+        screen.create_text(400,550,anchor="w", tags="score",font=("Consolas", 50),fill="white",text=computer_score)
+
+        moves = player_score+computer_score
     
-    def getAllLegalMoves(self, color):
-        """
-        getAllLegalMoves. To obtain all the legal moves of color's current position
-        :param color: str. Indicate current player's color
-        :return: a list containing legal moves of current position
-        """
-        legalMove = []
-        for point in range(len(self.board)):
+    def getLegalMoves(self, color):
+        assert color in [BLACK, WHITE]
+        legalMoves = []
+        for point in range(self.minpoint, self.maxpoint+1):
             if self.board[point] == EMPTY:
                 position = self.point2position(point)
-                if self.reverseColor(position, color, "check"):
-                    legalMove.append(point)
-        return legalMove
 
+                valid, end = self.isPositionValid(position, color)
+                if valid:
+                    legalMoves.append(point)
 
-    def erase(self, point):
-        """
-        erase. To delete a move from the game board
-        :param point: int. Indicating the index number of the given position
-        :return: none
-        """
-        self.board[point] = EMPTY
-        for key in self.changedPoints:
-            self.board[key] = self.changedPoints[key]
-        self.changedPoints = {}
+        return legalMoves
 
-    def play(self, color, point):
-        """
-        play. To make a move on the game board
-        :param color: str. Indicate current player's color
-        :param point: int. Indicating the index number of the given position
-        :return: none
-        """
-        if self.board[point] == EMPTY:
-            self.board[point] = color
-        position = self.point2position(point)
-        self.reverseColor(position, color,"change")
-        self.boardHistory.append(deepcopy(self.board))
-        
-    def undo(self):
-        """
-        undo. To delete a board history from the list
-        :return: none
-        """
-        self.boardHistory.pop()
-        self.board = deepcopy(self.boardHistory[-1])
-        
+    
+    def noMovesForBoth(self):
+        black = len(self.getLegalMoves(BLACK))
+        white = len(self.getLegalMoves(WHITE))
+        return black + white == 0
+    
+    def setBothColor(self, color):
+
+        self.humanColor = color
+        self.computerColor = WHITE if color == BLACK else BLACK
+
+    def row_start(self, row):
+        return row * self.NS + 1
+
+    def initBoard(self):
+
+        self.board = np.full(pow((self.size + 2),2), BORDER, dtype = 'U')
+        for row in range(1, self.size + 1):
+            start = self.row_start(row)
+            self.board[start : start + self.size] = EMPTY
+        self.board[44],self.board[55] = WHITE,WHITE
+        self.board[45],self.board[54] = BLACK,BLACK
+
+    def get_twoD_board(self):
+        board2d = [[EMPTY for i in range(self.size)] for j in range(self.size)]
+        for row in range(self.size):
+            start = self.row_start(row + 1)
+            board2d[row] = self.board[start : start + self.size]
+        return board2d
+
+    def showBoard(self):
+
+        colString = " " + "".join([str(i).center(3) for i  in range(1,self.size+1)])
+        board2d = self.get_twoD_board()
+        print(colString)
+        for row in range(self.size):
+            strRow = [str(i).center(3) for i in board2d[row]]
+            rowString =  str(self.alphabet[row]) + "".join(strRow)
+            print(rowString)
+
+    def position2point(self,position):
+
+        letter, col = position
+        assert letter in self.alphabet[:self.size]
+        col = int(col)
+        assert 1 <= col <= self.size
+        row = self.alphabet.index(letter)
+        assert 0 <= row <=  self.size - 1
+        point = (row+1)*(self.size+2) + col
+        assert self.minpoint <= point <= self.maxpoint
+        return point
+
+    def point2position(self,point):
+        assert self.minpoint <= point <= self.maxpoint
+        return self.alphabet[(point//(self.size+2)) - 1]+str(point % (self.size+2))
+
+    def getScore(self, color):
+
+        assert color in [BLACK, WHITE]
+        score = 0
+        for point in self.board:
+            if point == color:
+                score += 1
+        return score
+
+    def isPositionValid(self, position, color):
+
+        assert color in [BLACK, WHITE]
+        letter, col = position
+        assert letter in self.alphabet[:self.size]
+        j = int(col)
+        assert 1 <= j <= self.size
+        i = self.alphabet.index(letter) + 1
+        for item in self.directions:
+            i_step,j_step = item
+            valid,end = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
+            if valid:
+                return True,end
+
+        return False,None
+
     def valid_move(self,i,j,i_step,j_step,color):
-        """
-        valid_move. To check if a position is a valid move
-        :param i: int. Indicate row position
-        :param j: int. Indicate col position
-        :param i_step: int. Indicate row directional instruction
-        :param j_step: int. Indicate col directional instruction
-        :param color: str. Indicate current player's color
-        :return: boolean.
-        """
-        #check if the adjacent cells has the same color
-        #if it's the same color or empty, stop
-        point = self.index2point(i,j)
-        if self.board[point] == color or self.board[point] == EMPTY or point < 0:
-            return False
 
-        return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
+        assert color in [BLACK, WHITE]
+        point = i * (self.size+2) + j
 
-
-    def check_directions(self,i,j,i_step,j_step,color):
-        """
-        check_directions.
-        :param i: int. Indicate row position
-        :param j: int. Indicate col position
-        :param i_step: int. Indicate row directional instruction
-        :param j_step: int. Indicate col directional instruction
-        :param color: str. Indicate current player's color
-        :return: boolean.
-        """
-        point = self.index2point(i,j)
-        if self.board[point] == color:
-            return True
-
-        elif self.board[point] == EMPTY or point < 0:
-            return False
-
+        if self.board[point] in [EMPTY,BORDER,color]:
+            return False,None
         else:
-            return self.check_directions(i+i_step, j+j_step, i_step, j_step, color)
+            return self.check_directions(i+i_step,j+j_step, i_step, j_step,color)
 
+    def check_directions(self, i,j,i_step,j_step,color):
 
-    def reverseColor(self,position,color,code):
-        """
-        reverseColor. To reverse a player's color to its opponent's color
-        :param position: list. Indicate the row and col position
-        :param color: str. Indicate current player's color
-        :param code: str. Indicate the instruction
-        :return: none
-        """
-        #check moves
-        i,j = position
-        for dire in self.directions:
-            i_step,j_step = dire
-            try:
-                if i+i_step >= 0 and i+i_step < self.size and j+j_step >=0 and j+j_step < self.size:
-                    valid = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
-                    if valid and code == "check":
-                        return True
-                    elif valid and code == "change":
-                        self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
-            except:
-                pass
+        assert color in [BLACK, WHITE]
+        point = i * (self.size+2) + j
+        if self.board[point] == color:
+            return True, [i,j]
+        elif self.board[point] in [EMPTY, BORDER]:
+            return False, None
 
+        return self.check_directions(i+i_step,j+j_step, i_step,j_step,color)
+
+    def genMove(self,color):
+        legalMoves = self.getLegalMoves(color)
+        if legalMoves:
+            return random.choice(legalMoves)
+        return False
+     
+
+    def playMove(self, point,color):
+
+        assert self.minpoint <= point <= self.maxpoint
+        assert color in [BLACK, WHITE]
+
+        position = self.point2position(point)
+        if not self.isPositionValid(position, color):
+            return False
+
+        if self.board[point] == EMPTY:
+            copyBoard = deepcopy(self.board)
+            self.boardHistory.append(copyBoard)
+            self.board[point] = color
+
+        position = self.point2position(point)
+        self.reverse_color(position,color)
+        self.change_current_player()
+    
+    def makeMove(self, color, point, screen,alphabeta,recentDot):
+        assert self.minpoint <= point <= self.maxpoint
+        assert color in [BLACK, WHITE]
+        position = self.point2position(point)
+        if not self.isPositionValid(position, color):
+            return False
+
+        if self.board[point] == EMPTY:
+            copyBoard = deepcopy(self.board)
+            self.boardHistory.append(copyBoard)
+            self.board[point] = color
+
+        position = self.point2position(point)
+        self.reverse_color(position,color)
+        self.player = BLACK if self.player == WHITE else WHITE
+        self.update(screen,alphabeta,recentDot)
+        
+
+    def undo(self):
+
+        self.board = self.boardHistory.pop()
+
+    def reverse_color(self, position, color):
+
+        assert color in [BLACK, WHITE]
+        letter, col = position
+        assert letter in self.alphabet[:self.size]
+        j = int(col)
+        assert 1 <= j <= self.size
+        i = self.alphabet.index(letter) + 1
+        for item in self.directions:
+            i_step,j_step = item
+            valid,end = self.valid_move(i+i_step,j+j_step,i_step,j_step,color)
+            if valid and end:
+                self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
 
     def start_reverse(self,i,j,i_step,j_step,color):
-        """
-        start_reverse. To reverse the opponent's color for a given move
-        :param i: int. Indicate row position
-        :param j: int. Indicate col position
-        :param i_step: int. Indicate row directional instruction
-        :param j_step: int. Indicate col directional instruction
-        :param color: str. Indicate current player's color
-        :return: none
-        """
-        if color == WHITE:
-            optcolor = BLACK
-        else:
-            optcolor = WHITE
-        point = self.index2point(i,j)
+
+        assert color in [BLACK, WHITE]
+        point = i * (self.size+2) + j
         if self.board[point] == color:
             return
         self.board[point] = color
-        self.changedPoints[point] = optcolor
         self.start_reverse(i+i_step, j+j_step, i_step, j_step, color)
 
 
-    def getMark(self, color):
-        """
-        getMark. To obtain the marks for the given player
-        :param color: str. Indicate player's color
-        :return: int. Indicate given player's marks
-        """
-        mark = 0
-        for point in self.board:
-            if point == color:
-                mark += 1
-        return mark
-
-    def isEnd(self):
-        """
-        isEnd. To check if the game is end
-        :return: boolean. Return True if the game is end, otherwise return False
-        """
-        if len(self.getAllLegalMoves(BLACK)) == 0 and len(self.getAllLegalMoves(WHITE)) == 0:
-            return True
-        else:
-            return False
-
-
-    def getWinner(self):
-        """
-        getWinner. To compare player's marks and get the one with higher marks
-        :return: str. Indicate the winner or draw condition
-        """
-        if self.isEnd():
-            blackMark = self.getMark(BLACK)
-            whiteMark = self.getMark(WHITE)
-            if blackMark > whiteMark:
-                return BLACK
-            elif blackMark == whiteMark:
-                return 'tie'
-            else:
-                return WHITE
-
-        return None
-
     def change_current_player(self):
-        """
-        change_current_player. To switch the state of current player
-        :return: none
-        """
 
         self.currentPlayer = BLACK if self.currentPlayer == WHITE else WHITE
-    
+
     def getOptColor(self, color):
-        """
-        getOptColor. To obtain the opponent player's color
-        :param color: str. Indicate current player's color
-        :return: str. Indicate the opponent player's color
-        """
-        if color == BLACK:
-            return WHITE
-        if color == WHITE:
+
+        return WHITE if color == BLACK else BLACK
+
+    def isEnd(self):
+
+        return self.pass2 == 2
+
+    def getWinner(self):
+
+        blackScore = self.getScore(BLACK)
+        whiteScore = self.getScore(WHITE)
+        if blackScore > whiteScore:
             return BLACK
-         
+        elif blackScore == whiteScore:
+            return 'Tie'
+        else:
+            return WHITE
