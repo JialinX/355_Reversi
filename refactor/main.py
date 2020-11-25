@@ -5,6 +5,12 @@ WHITE = 'o' # player white
 EMPTY = '.'
 BORDER = '#'
 
+def printResult(board):
+
+    print(f"The game winner is {board.getWinner()}")
+    print(f"{BLACK} has score {board.getScore(BLACK)}")
+    print(f"{WHITE} has score {board.getScore(WHITE)}")
+
 def printMenu():
     print('  h            help menu')
     print('  b            board')
@@ -14,39 +20,56 @@ def printMenu():
     print('  l x/o        show legal moves for x/o')
     print('  u            undo')
 
-def playCommand(board, point, alphabeta, color, humanColor):
+def computerPlay(board, alphabeta, computerColor):
+
+    _, move = alphabeta.genMove(computerColor)
+    if move is None:
+        board.pass2 += 1
+        print("computer has no legal move, then computer passes")
+        if board.pass2 == 2:
+            return False
+        return True
+    board.playMove(move, computerColor)
+    board.pass2 = 0
+    print("Computer's turn: ")
+    board.showBoard()
+    print(f"Computer played at {board.point2position(move)}")
+    return True
+
+def playCommand(board, point, alphabeta, color, humanColor, computerColor):
 
     moves = board.getLegalMoves(color)
-    if color == board.computerColor:
+    if color == computerColor:
         print("You cannot play as computer's color")
-        return
+        return True
 
     if not moves:
-        print(f"There is no legal moves for {color} It has to pass")
-        return
+        board.pass2 += 1
+        print(f"There is no legal moves for {color}, this turn has passed")
+        if board.pass2 == 2:
+            return False
+        else:
+            if humanColor == color:
+                return computerPlay(board, alphabeta, computerColor)
+            return True
 
     if point in moves:
         board.playMove(point, color)
+        board.pass2 = 0
         board.showBoard()
     else:
         print(f"Invalid position for {color}, please select from following moves")
         showLegalMove(color)
-        return
+        return True
     if humanColor == color:
-        _, move = alphabeta.genMove(board.computerColor)
-        if move is None:
-            print("computer has no legal move, then computer passes")
-            return
-        board.playMove(move, board.computerColor)
-        print("Computer's turn: ")
-        board.showBoard()
-        print(f"Computer played at {board.point2position(move)}")
+        return computerPlay(board, alphabeta, computerColor)
+        
 
 def showLegalMove(board, color):
 
     moves = board.getLegalMoves(color)
     if len(moves) == 0:
-        print("You have no legal moves")
+        print("You have no legal moves, enter 'p' to pass your turn")
         return False
     else:
         allMoves = " ".join([board.point2position(move) for move in moves])
@@ -77,7 +100,7 @@ def getHumanColor():
             print("Invalid input, please input again")
 
 
-def dealCommand(commands, board, alphabeta, humanColor):
+def dealCommand(commands, board, alphabeta, humanColor, computerColor):
 
     if commands[0] == 'h':
         printMenu()
@@ -89,7 +112,7 @@ def dealCommand(commands, board, alphabeta, humanColor):
         _, position = commands.split()
         color = commands[0]
         point = board.position2point(position)
-        playCommand(board, point, alphabeta, color, humanColor)
+        return playCommand(board, point, alphabeta, color, humanColor, computerColor)
 
     elif commands[0] == 'g':
         _, color = commands.split()
@@ -107,6 +130,9 @@ def dealCommand(commands, board, alphabeta, humanColor):
         board.undo()
         board.showBoard()
 
+    elif commands[0] == 'p':
+        playCommand(board, 0, alphabeta, humanColor, humanColor, computerColor)
+
     elif commands[0] == 'q':
         print("Bye...:)")
         return False
@@ -123,15 +149,23 @@ def main():
     alphabeta = AlphaBeta(board)
     humanColor = getHumanColor()
     board.setBothColor(humanColor)
+    computerColor = None if humanColor is None else board.computerColor
 
     if humanColor == WHITE:
-        comMove = alphabeta.genMove(board.computerColor)
+        _, comMove = alphabeta.genMove(board.computerColor)
         board.playMove(comMove,BLACK)
     while not board.isEnd():
         board.showBoard()
+        moves = board.getLegalMoves(BLACK) + board.getLegalMoves(WHITE)
+        if len(moves) == 0:
+            break
+        if board.pass2 == 2:
+            break
         command = input("Commands>> ")
-        toGo = dealCommand(command, board, alphabeta, humanColor)
+        
+        toGo = dealCommand(command, board, alphabeta, humanColor,computerColor)
         if not toGo:
             break
+    printResult(board)
 
 main()
