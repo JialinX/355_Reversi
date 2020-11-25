@@ -16,6 +16,10 @@ BORDER = '#' # border point
 class ReversiBoard:
 
     def __init__(self,size):
+        """
+        __init__. To initialize class variables
+        :param size: int。 size of the board
+        """
         self.size = size
         self.computerColor = None
         self.humanColor = None
@@ -31,9 +35,21 @@ class ReversiBoard:
         self.player = BLACK
         
     def alpha2Row(self, alpha):
+        """
+        alpha2Row. To convert alphabet string to index
+        :param alpha: str. Indicate the alphabet character
+        :return:     
+        """
         return "abcdefgh".index(alpha)
     
     def update(self, screen, alphabeta,recentDot):
+        """
+        update. To update the board state after each move
+        :param screen: Canvas. UI construction of the game board
+        :param alphabeta: Class. Indicate the alphabeta searching class
+        :param recentDot: None.
+        :return: none
+        """
         screen.delete("greenDot")
         screen.delete("tile")    
         screen.delete("notification") 
@@ -151,6 +167,11 @@ class ReversiBoard:
             
             
     def drawScoreBoard(self,screen):
+        """
+        drawScoreBoard. To present the score board 
+        :param screen: Canvas. UI construction of the board
+        :return: none
+        """
         global moves
         #Deleting prior score elements
         screen.delete("score")
@@ -169,6 +190,11 @@ class ReversiBoard:
         moves = player_score+computer_score
     
     def getLegalMoves(self, color):
+        """
+        getLegalMoves. To obtain a list containing all the legal moves for current player
+        :param color: str. Indicate current player's color
+        :return:list. Return a list containing all the legal moves
+        """
         assert color in [BLACK, WHITE]
         legalMoves = []
         for point in range(self.minpoint, self.maxpoint+1):
@@ -183,19 +209,37 @@ class ReversiBoard:
 
     
     def noMovesForBoth(self):
+        """
+        noMovesForBoth. To check if there is move for both players
+        :return: boolean.
+        """
         black = len(self.getLegalMoves(BLACK))
         white = len(self.getLegalMoves(WHITE))
         return black + white == 0
     
     def setBothColor(self, color):
+        """
+        setBothColor. To set up the colors for both player and the computer
+        :param color: str. Indicate the player's color
+        :return: none
+        """
 
         self.humanColor = color
         self.computerColor = WHITE if color == BLACK else BLACK
 
     def row_start(self, row):
+        """
+        row_start.
+        :param row: int. Indicate the row number
+        :return: int.
+        """
         return row * self.NS + 1
 
     def initBoard(self):
+        """
+        initBoard. To initialize the board state at the start
+        :return: none
+        """
 
         self.board = np.full(pow((self.size + 2),2), BORDER, dtype = 'U')
         for row in range(1, self.size + 1):
@@ -205,6 +249,10 @@ class ReversiBoard:
         self.board[45],self.board[54] = BLACK,BLACK
 
     def get_twoD_board(self):
+        """
+        get_twoD_board. To obtain the board structure in two dimension
+        :return: list. Containing the two dimentional board structure
+        """
         board2d = [[EMPTY for i in range(self.size)] for j in range(self.size)]
         for row in range(self.size):
             start = self.row_start(row + 1)
@@ -212,7 +260,10 @@ class ReversiBoard:
         return board2d
 
     def showBoard(self):
-
+        """
+        showBoard. To present the board
+        :return: none
+        """
         colString = " " + "".join([str(i).center(3) for i  in range(1,self.size+1)])
         board2d = self.get_twoD_board()
         print(colString)
@@ -222,7 +273,11 @@ class ReversiBoard:
             print(rowString)
 
     def position2point(self,position):
-
+        """
+        position2point. To obtain an index value for a position given its position code
+        :param position: list. Indicate a position code containing letter and column number
+        :return: int. Return an index of this position given its row and col numbers
+        """
         letter, col = position
         assert letter in self.alphabet[:self.size]
         col = int(col)
@@ -234,11 +289,20 @@ class ReversiBoard:
         return point
 
     def point2position(self,point):
+        """
+        point2position. To convert an index for a position to its row and col representation
+        :param point: int. Indicating this index number of the given position
+        :return: list. Containing the given index's row and col number
+        """
         assert self.minpoint <= point <= self.maxpoint
         return self.alphabet[(point//(self.size+2)) - 1]+str(point % (self.size+2))
 
     def getScore(self, color):
-
+        """
+        getScore. To obtain the score 
+        :param color: str. Indicate the player's color 
+        :return: int. Return the score 
+        """
         assert color in [BLACK, WHITE]
         score = 0
         for point in self.board:
@@ -247,7 +311,12 @@ class ReversiBoard:
         return score
 
     def isPositionValid(self, position, color):
-
+        """
+        isPositionValid.
+        :param position: list. Indicate the letter and column position
+        :param color: str. Indicate the player's color 
+        :return: boolean
+        """
         assert color in [BLACK, WHITE]
         letter, col = position
         assert letter in self.alphabet[:self.size]
@@ -263,7 +332,15 @@ class ReversiBoard:
         return False,None
 
     def valid_move(self,i,j,i_step,j_step,color):
-
+        """
+        valid_move. To check if a position is a valid move
+        :param i: int. Indicate row position
+        :param j: int. Indicate col position
+        :param i_step: int. Indicate row directional instruction
+        :param j_step: int. Indicate col directional instruction
+        :param color: str. Indicate current player's color
+        :return: boolean.
+        """
         assert color in [BLACK, WHITE]
         point = i * (self.size+2) + j
 
@@ -273,7 +350,15 @@ class ReversiBoard:
             return self.check_directions(i+i_step,j+j_step, i_step, j_step,color)
 
     def check_directions(self, i,j,i_step,j_step,color):
-
+        """
+        check_directions.
+        :param i: int. Indicate row position
+        :param j: int. Indicate col position
+        :param i_step: int. Indicate row directional instruction
+        :param j_step: int. Indicate col directional instruction
+        :param color: str. Indicate current player's color
+        :return: boolean.
+        """
         assert color in [BLACK, WHITE]
         point = i * (self.size+2) + j
         if self.board[point] == color:
@@ -284,6 +369,11 @@ class ReversiBoard:
         return self.check_directions(i+i_step,j+j_step, i_step,j_step,color)
 
     def genMove(self,color):
+        """
+        genMove. To generate next move 
+        :param color: str. Indicate the player's color
+        :return: list. Containing the generated move otherwise False
+        """
         legalMoves = self.getLegalMoves(color)
         if legalMoves:
             return random.choice(legalMoves)
@@ -291,7 +381,12 @@ class ReversiBoard:
      
 
     def playMove(self, point,color):
-
+        """
+        playMove. To place the move 
+        :param point: int. Indicate the index position 
+        :param color: str. Indicate the player's color 
+        :return: False if position is not valid 
+        """
         assert self.minpoint <= point <= self.maxpoint
         assert color in [BLACK, WHITE]
 
@@ -309,6 +404,15 @@ class ReversiBoard:
         self.change_current_player()
     
     def makeMove(self, color, point, screen,alphabeta,recentDot):
+        """
+        makeMove. 
+        :param color: str. Indicate the player's color
+        :param point: int. Indicate the index position
+        :param screen: Canvas. UI construction of the game board 
+        :param alphabeta: Class. Indicate the alphabeta search class
+        :param recentDot: None.
+        :return: False if position is not valid 
+        """
         assert self.minpoint <= point <= self.maxpoint
         assert color in [BLACK, WHITE]
         position = self.point2position(point)
@@ -327,11 +431,19 @@ class ReversiBoard:
         
 
     def undo(self):
-
+        """
+        undo. To delete a board history from the list
+        :return: none
+        """
         self.board = self.boardHistory.pop()
 
     def reverse_color(self, position, color):
-
+        """
+        reverseColor. To reverse a player's color to its opponent's color
+        :param position: list. Indicate the row and col position
+        :param color: str. Indicate current player's color
+        :return: none
+        """
         assert color in [BLACK, WHITE]
         letter, col = position
         assert letter in self.alphabet[:self.size]
@@ -345,7 +457,15 @@ class ReversiBoard:
                 self.start_reverse(i+i_step,j+j_step,i_step,j_step,color)
 
     def start_reverse(self,i,j,i_step,j_step,color):
-
+        """
+        start_reverse. To reverse the opponent's color for a given move
+        :param i: int. Indicate row position
+        :param j: int. Indicate col position
+        :param i_step: int. Indicate row directional instruction
+        :param j_step: int. Indicate col directional instruction
+        :param color: str. Indicate current player's color
+        :return: none
+        """
         assert color in [BLACK, WHITE]
         point = i * (self.size+2) + j
         if self.board[point] == color:
@@ -355,19 +475,32 @@ class ReversiBoard:
 
 
     def change_current_player(self):
-
+        """
+        change_current_player. To switch the state of current player
+        :return: none
+        """
         self.currentPlayer = BLACK if self.currentPlayer == WHITE else WHITE
 
     def getOptColor(self, color):
-
+        """
+        getOptColor. To obtain the opponent player's color
+        :param color: str. Indicate current player's color
+        :return: str. Indicate the opponent player's color
+        """
         return WHITE if color == BLACK else BLACK
 
     def isEnd(self):
-
+        """
+        isEnd. To check if the game is end
+        :return: boolean. Return True if the game is end, otherwise return False
+        """
         return self.pass2 == 2
 
     def getWinner(self):
-
+        """
+        getWinner. To compare player's marks and get the one with higher marks
+        :return: str. Indicate the winner or draw condition
+        """
         blackScore = self.getScore(BLACK)
         whiteScore = self.getScore(WHITE)
         if blackScore > whiteScore:
