@@ -1,4 +1,6 @@
 # 355_Reversi
+Our video can be found at https://youtu.be/xpUIA5hvYDE
+
 To play Reversi in terminal, please run 'python3 playGame.py'
 
 To play Reversi on a GUI, please run 'python3 playGame_GUI.py'
