@@ -198,7 +198,6 @@ def dealCommand(commands, board, alphabeta, humanColor, computerColor):
 def main():
 
     board = ReversiBoard(8)
-    board.showBoard()
     alphabeta = AlphaBeta(board)
     humanColor = getHumanColor()
     board.setBothColor(humanColor)
@@ -209,8 +208,9 @@ def main():
         board.playMove(comMove,BLACK)
         print(f"Computer played at {board.point2position(comMove)}")
         
+    
+    board.showBoard()    
     while not board.isEnd():
-        board.showBoard()
         moves = board.getLegalMoves(BLACK) + board.getLegalMoves(WHITE)
         
         if len(moves) == 0:
