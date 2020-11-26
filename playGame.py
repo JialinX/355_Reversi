@@ -5,6 +5,13 @@ WHITE = 'o' # player white
 
 def pvpGame(board,alphabeta):
 
+	"""
+	pvpGame. used to play game between human
+	:param board: list. Indicate current board state
+	:param alphabeta: AlphaBeta. alphabeta instance
+	:return: none
+	"""
+
 	board.showBoard()
 	print("x goes first, o goes second")
 
@@ -24,6 +31,13 @@ def pvpGame(board,alphabeta):
 	printResult(board)
 
 def pvcGame(board,alphabeta):
+
+	"""
+	pvcGame. used to play game between human and computer
+	:param board: list. Indicate current board state
+	:param alphabeta: AlphaBeta. alphabeta instance
+	:return: none
+	"""
 
 	board.showBoard()
 	print("x goes first, o goes second")
@@ -49,7 +63,7 @@ def showLegalMove(board, color):
 	showLegalMove. To show legal moves for the current player
 	:param board: list. Indicate current board state
 	:param color: str. Indicate current player's color
-	:return: boolean or str. Ture if no legal move found, otherwise a string of all legal moves
+	:return: none
 	"""
 	moves = board.getLegalMoves(color)
 	if not moves:
@@ -70,6 +84,14 @@ def printResult(board):
 
 def humanPlayMove(board,point, humanColor):
 
+	"""
+	printResult. Print the result of a given board state
+	:param board: str. Indicate player's input
+	:param point: int. Indicate a move from the player
+	:param humanColor: str. Indicate player's color
+	:return: False if error happenes, True if move is placed on the board
+	"""
+
 	moves = board.getLegalMoves(humanColor)
 	if not moves:
 		print(f"There is no legal moves for {humanColor}, you have to input 'p' to pass your turn")
@@ -88,6 +110,14 @@ def humanPlayMove(board,point, humanColor):
 
 def computerPlayMove(board, alphabeta, computerColor):
 
+	"""
+	printResult. Print the result of a given board state
+	:param board: str. Indicate player's input
+	:param alphabeta: AlphaBeta. alphabeta instance
+	:param computerColor: str. Indicate computer's color
+	:return: none
+	"""
+
 	_, move = alphabeta.genMove(computerColor)
 	if move is None:
 		board.pass2 += 1
@@ -101,6 +131,15 @@ def computerPlayMove(board, alphabeta, computerColor):
 
 def dealCommand(commands, board, alphabeta, humanColor, mode):
 
+	"""
+	dealCommand. To present the corresponding commend from the player
+	:param commands: str. Indicate player's input
+	:param board: list. Indicate current board state
+	:param alphabeta: class. Indicate alphabeta class
+	:param humanColor: str. Indicate the player's color
+	:param mode: str. Indicate the mode either be 'pvc' or 'pvp'
+	:return: none
+	"""
 	commandLen = len(commands.split())
 
 	if commands[0] == 'h':
@@ -178,6 +217,10 @@ def dealCommand(commands, board, alphabeta, humanColor, mode):
 		return
 
 def printMenu():
+	"""
+	printMenu. Print the instruction menue 
+	:return: none 
+	"""
 
 	print('  h            help menu')
 	print('  b            board')
