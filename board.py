@@ -33,6 +33,7 @@ class ReversiBoard:
         self.boardHistory = []
         self.initBoard()
         self.player = BLACK
+        self.end = False
         
     def alpha2Row(self, alpha):
         """
@@ -427,6 +428,7 @@ class ReversiBoard:
         position = self.point2position(point)
         self.reverse_color(position,color)
         self.player = BLACK if self.player == WHITE else WHITE
+        self.change_current_player()
         self.update(screen,alphabeta,recentDot)
         
 
@@ -436,6 +438,7 @@ class ReversiBoard:
         :return: none
         """
         self.board = self.boardHistory.pop()
+        self.change_current_player()
 
     def reverse_color(self, position, color):
         """
@@ -495,7 +498,16 @@ class ReversiBoard:
         isEnd. To check if the game is end
         :return: boolean. Return True if the game is end, otherwise return False
         """
-        return self.pass2 == 2
+        if self.pass2 == 2: return True
+        if self.end: return True
+        if self.getScore(BLACK) == 0: return True
+        if self.getScore(WHITE) == 0: return True
+        if len(self.getLegalMoves(BLACK)+self.getLegalMoves(WHITE)) == 0:return True
+        return False
+
+    def endGame(self):
+
+        self.end = True
 
     def getWinner(self):
         """
