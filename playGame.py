@@ -56,9 +56,9 @@ def playCommand(board, point, alphabeta, color, humanColor, computerColor):
     :param point: int. Indicate the index number of the given position
     :param alphabeta: class. Indicate alphabeta class
     :param color: str. Indicate the player's color
-    :param humanColor: str. Indicate the player's color
-    :param computerColor: str. Indicate the computer's color
-    :return: none
+    :param humanColor: str. Indicate the player's color (pvp only)
+    :param computerColor: str. Indicate the computer's color (pvp only)
+    :return: if game ends
     """
     moves = board.getLegalMoves(color)
     if color == computerColor:
@@ -86,6 +86,8 @@ def playCommand(board, point, alphabeta, color, humanColor, computerColor):
     if humanColor == color:
         return computerPlay(board, alphabeta, computerColor)
         
+        
+    return True
 
 def showLegalMove(board, color):
     """
@@ -205,9 +207,12 @@ def main():
     if humanColor == WHITE:
         _, comMove = alphabeta.genMove(board.computerColor)
         board.playMove(comMove,BLACK)
+        print(f"Computer played at {board.point2position(comMove)}")
+        
     while not board.isEnd():
         board.showBoard()
         moves = board.getLegalMoves(BLACK) + board.getLegalMoves(WHITE)
+        
         if len(moves) == 0:
             break
         if board.pass2 == 2:
@@ -222,5 +227,5 @@ def main():
         if not toGo:
             break
     printResult(board)
-
+    
 main()
