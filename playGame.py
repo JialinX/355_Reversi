@@ -15,12 +15,9 @@ def pvpGame(board,alphabeta):
 	board.showBoard()
 	print("x goes first, o goes second")
 
-	playerAColor = input("What color do you want to use? (x/o): ")
-	while playerAColor[0].lower() not in [BLACK,WHITE,'w','b']:
-		playerAColor = input("Invalid, input, please input again: ")
+	playerAColor = BLACK
 	board.setBothColor(playerAColor)
 	playerBColor = board.getOptColor(playerAColor)
-	print(f"PlayerA plays {playerAColor}, PlayerB plays {playerBColor}")
 
 	while not board.isEnd():
 		print(f"Current turn is {board.currentPlayer}")
