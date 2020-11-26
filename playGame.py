@@ -192,10 +192,19 @@ def dealCommand(commands, board, alphabeta, humanColor, mode):
 		showLegalMove(board, color)
 
 	elif commands[0] == 'u':
-		if not board.boardHistory:
-			print("There is no move to undo")
-			return
-		board.undo()
+		historyLen = len(board.boardHistory)
+		if mode == 'pvc':
+			if historyLen <= 1:
+				print("There is no move to undo")
+				return			
+			board.undo()
+			board.undo()
+		else:
+			if historyLen == 0:
+				print("There is no move to undo")
+				return					
+			board.undo()
+			
 		board.showBoard()
 
 	elif commands[0] == 'p':
