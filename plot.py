@@ -19,11 +19,11 @@ avgRandom = []
 totalepisode = 100
 
 def greedy(board):
-    """
-    greedy. To implement greedy algorithm to search for the next best move
-    :param board: list. Indicate the current board state
-    :return: list. Containing score for both players
-    """
+	"""
+	greedy. To implement greedy algorithm to search for the next best move
+	:param board: list. Indicate the current board state
+	:return: list. Containing score for both players
+	"""
 	alphabeta = AlphaBeta(board)
 
 	while not board.isEnd():
@@ -51,11 +51,11 @@ def greedy(board):
 	return whiteScore,blackScore
 
 def random(board):
-    """
-    random. To implement random algorithm to search for the next move
-    :param board: list. Indicate the current board state
-    :return: list. Containing score for both players
-    """
+	"""
+	random. To implement random algorithm to search for the next move
+	:param board: list. Indicate the current board state
+	:return: list. Containing score for both players
+	"""
 	alphabeta = AlphaBeta(board)
 
 	while not board.isEnd():
